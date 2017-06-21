@@ -22,7 +22,7 @@ var USER = function (data, user) {
     }
 
     user.userExist = function () {
-        let nameExist = false;
+        var nameExist = false;
         for (var i in PLAYER_LIST) {
             if (PLAYER_LIST[i].userName === user.userName)
             {
@@ -64,7 +64,7 @@ io.sockets.on('connection', function (socket) {
 
     socket.on('addPlayer', function (data) {
         var player = USER(socket, data);
-        let result = player.userExist();  
+        var result = player.userExist();  
         if (result != true) {
             PLAYER_LIST[socket.id] = player;
         }
@@ -72,7 +72,7 @@ io.sockets.on('connection', function (socket) {
     });
 
     socket.on('addGuest', function () {
-        let guestName = { userName: 'Goœæ ' + socket.id.slice(1, 7) };
+        var guestName = { userName: 'Goœæ ' + socket.id.slice(1, 7) };
         var player = USER(socket, guestName);
         PLAYER_LIST[socket.id] = player;
         socket.emit('addPlayerResult', false);
@@ -101,7 +101,7 @@ io.sockets.on('connection', function (socket) {
     //Hosting
     socket.on('hostGame', function (data) {
         console.log('Creating host');
-        let goodName = true;
+        var goodName = true;
         var lobby = HOST(socket.id, PLAYER_LIST[socket.id].userName, data);
         lobby.createParty();
 
