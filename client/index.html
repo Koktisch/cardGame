@@ -1,0 +1,206 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+    <!--<link rel="stylesheet" href="mainStyle.css" />-->
+    <style>
+        body {
+            margin: 0px;
+        }
+        
+        html, body {
+            height: 100%;
+        }
+
+        #gamesBox {
+            width: 65%;
+            height: 100%;
+            float: right;
+            background-color: blue;
+        }
+
+        #socialBox {
+            width: 35%;
+            height: 100%;
+            float: left;
+            background-color: pink;
+        }
+
+        #logAbs {
+            position: absolute;
+            z-index: 10000;
+            left: 50%;
+            top: 35%;
+        }
+
+        #logBox {
+            position: relative;
+            left: -50%;
+            top: -35%;
+            height: 10%;
+            background: yellow;
+        }
+
+        .blockBox {
+            position: absolute;
+            z-index: 9000;
+            background-color: black;
+            opacity: 0.5;
+            width: 100%;
+            height: 100%;
+        }
+
+        #hostBox {
+            width: 100%;
+            height: 40%;
+            float: left;
+            background-color: red;
+        }
+
+        #chat {
+            width: 100%;
+            height: 57%;
+            float: left;
+        }
+
+        #chat-text {
+            width: 100%;
+            height: 100%;
+            overflow-y: scroll
+        }
+
+        #chat-input {
+            width: 100%;
+        }
+
+        #chat-form {
+            width: 100%;
+            padding-top: 0%;
+            margin-top: 1%;
+            float: left;
+        }
+
+        .gameDiv {
+            width: 400px;
+            height: 100px;
+            border: 1px solid black;
+        }      
+    </style>
+    <script>
+        var partyStatusEnum = Object.freeze({ "public": 0, "private": 1, "full": 2 })
+
+        var socket = io();
+
+        function connectWithServer() {
+            socket.emit('getPartyList');
+            socket.on('partyList', function (data) {
+                let gamesBox = document.getElementById("gamesBox");
+                if (gamesBox.firstChild) {
+                    //usuwanie gameboxa
+                    while (gamesBox.firstChild) {
+                        gamesBox.removeChild(gamesBox.firstChild);
+                    }
+                }
+                //wypełnianie game boxa
+                for (var gameNum = 0; gameNum < data.length; gameNum++) {
+                    let div = document.createElement("div");
+                    let btn = document.createElement("button");
+                    btn.innerText = 'Dołącz go gry';
+                    btn.id = data[gameNum].id;
+                    btn.onclick = function () { joinLobby(this); };
+                    div.classList.add('gameDiv');
+                    div.id = data[gameNum].partyStatus + '?' + data[gameNum].id;
+                    div.innerHTML = 'Gra użytkownika: ' + data[gameNum].firstPlayer;
+                    div.appendChild(btn);
+                    document.getElementById("gamesBox").appendChild(div);
+                }
+            });
+        }
+
+        function addPlayer() {
+            socket.emit('addPlayer', {
+                userName: document.getElementById('userName').value
+            });
+
+            socket.on('addPlayerResult', function(data) {
+                if (data === false)
+                {
+                    document.getElementsByClassName('blockBox')[0].style.display = "none";
+                    document.getElementById('logBox').style.display = "none";
+                }
+                else {
+                    alert('Nazwa już istnieje. Wybierz inną.');
+                }
+            });
+        }
+
+        function addGuest() {
+            socket.emit('addGuest');
+            socket.on('addPlayerResult', function (data) {
+                if (data === false) {
+                    document.getElementsByClassName('blockBox')[0].style.display = "none";
+                    document.getElementById('logBox').style.display = "none";
+                }
+            });
+        }
+
+        function hostGame() {
+            socket.emit('hostGame', {
+                partyStatus: document.getElementById('partyStatus').selectedIndex,
+                password: document.getElementById('password').value 
+            });
+            socket.on('hostResualt', function (data) {
+                alert('Czekam na przeciwnika');
+            });
+        }; 
+
+        function joinLobby(e) {
+            let idStr = e.parentElement.id;
+            idStr = idStr.substring(0, idStr.indexOf('?'));
+            if (idStr == partyStatusEnum.private) {
+                
+            }
+            else {
+                // socket.emit('joinToPublicLobby');
+            }
+        };             
+                
+    </script>
+</head>
+<body onload="connectWithServer()">
+    <div class="blockBox"></div>
+    <div id="logAbs">
+        <div id="logBox">
+            <a>Username</a><input type="text" id="userName" />
+            <button onclick="addPlayer()">Zaloguj się</button>
+            <button onclick="addGuest()">Wejdź jako gość</button>
+        </div>
+    </div>
+    <div id="socialBox">
+        <div id="hostBox">
+            <select id="partyStatus">
+                <option>Public</option>
+                <option>Private</option>
+            </select>
+            <a>Hasło</a><input type="password" id="password" />
+            <button onclick="hostGame()">Stwórz pokój</button>
+        </div>
+        <div id="chat">
+            
+        </div>
+        <form id="chat-form" onsubmit="chatMsg()">
+            <input id="chat-input" type="text" />
+        </form>
+    </div>
+    <div id="gamesBox">
+
+    </div>
+    <div id="passBox">
+        Wprowadź hasło: <input id="pass-input" type="password" />
+    </div>
+</body>
+</html>
+
