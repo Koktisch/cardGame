@@ -5,6 +5,9 @@ var serv = require('http').Server(app);
 var hostGames = [];
 var PLAYER_LIST = {};
 var SOCKET_LIST = {};
+var CONTROLERS_LIST = {};
+
+var $ = require('jquery');
 
 app.get('/', function (req, res) {
     res.sendFile(__dirname + '/client/index.html');
@@ -15,10 +18,12 @@ serv.listen(process.env.PORT || 2000);
 console.log('Server started');
 
 
-var USER = function (data, user) {
+
+var USER = function (data, user, controlerID) {
     var user = {
         id: data.id,
         userName: user.userName,
+        controller: controlerID,
     }
 
     user.userExist = function () {
@@ -33,6 +38,27 @@ var USER = function (data, user) {
     }
 
     return user;
+}
+
+var controller = function ()
+{
+    var controller = {
+        controllerID: null,
+        syncCode: null 
+    }
+
+    controller.getCode = function () {
+        var text = "";
+        var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+        for (var i = 0; i < 5; i++)
+            text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+        controller.syncCode = text;
+        return text;
+    }
+
+    return controller;
 }
 
 var HOST = function (id, player, data) {
@@ -79,11 +105,26 @@ io.sockets.on('connection', function (socket) {
     });
 
     socket.on('disconnect', function () {
+        deleteHostedGame();
         delete SOCKET_LIST[socket.id];
-        delete PLAYER_LIST[socket.id];
+        delete PLAYER_LIST[socket.id];        
         
         console.log('disconect ' + socket.id);
     });
+
+    function deleteHostedGame() {
+        var deleted = false;
+        var i = 0;
+        do {
+            if (hostGames[i] !== 'undefined' && hostGames[i].id === socket.id) {
+                hostGames.splice(i,1);
+                deleted = true;
+            }
+            i++;
+        } while (deleted !== true);
+
+        return deleted;
+    };
 
     socket.on('getPartyList', function () {
         for (var i in SOCKET_LIST) {
@@ -109,6 +150,24 @@ io.sockets.on('connection', function (socket) {
         for (var i in SOCKET_LIST) {
              SOCKET_LIST[i].emit('partyList', hostGames);
         }
+    });
+
+    socket.on('adminLeaveLobby', function (data) {
+        socket.emit('adminLeaveLobbyResault', deleteHostedGame());
+    });
+
+
+    //Controller
+
+    socket.on('getControllerCode', function (data) {
+        var phoneController = controller();
+        phoneController.getCode();
+        CONTROLERS_LIST[socket.id] = phoneController;
+        socket.emit('getControllerCodeRes', phoneController.syncCode);
+    });
+    socket.on('addControler', function (data) {
+        
+        socket.emit('addControlerResualt', result);
     });
 
 });
