@@ -224,11 +224,21 @@
                 $('#aForCode').val(code);
                 $('#controllerCode').css('display','block');
             });
+
+            socket.on('addControlerResualt', function (data) {
+                if (dat === true)
+                {
+                    alert('Przygotowuję grę');
+                }
+                else {
+                    alert('Error połączenia kontrolera!');
+                }               
+            });
         }
 
         function addControler() {
             socket.emit('addControler', {
-                codeValue: $('controlerCode').val()
+                codeValue: $('#controlerCode').val()
             });
         }
     </script>

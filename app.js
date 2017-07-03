@@ -19,11 +19,11 @@ console.log('Server started');
 
 
 
-var USER = function (data, user, controlerID) {
+var USER = function (data, user, controller) {
     var user = {
         id: data.id,
         userName: user.userName,
-        controller: controlerID,
+        controller: controller,
     }
 
     user.userExist = function () {
@@ -37,13 +37,17 @@ var USER = function (data, user, controlerID) {
         return nameExist;
     }
 
+    user.setController = function (controllerObj) {
+        user.controller = controllerObj;
+    }
+
     return user;
 }
 
-var controller = function ()
+var controller = function (socketID)
 {
     var controller = {
-        controllerID: null,
+        controllerID: socketID,
         syncCode: null 
     }
 
@@ -163,10 +167,18 @@ io.sockets.on('connection', function (socket) {
         var phoneController = controller();
         phoneController.getCode();
         CONTROLERS_LIST[socket.id] = phoneController;
+        PLAYER_LIST[socket.id].setController(phoneController);
         socket.emit('getControllerCodeRes', phoneController.syncCode);
     });
     socket.on('addControler', function (data) {
-        
+        var result = false;
+        for (var i in CONTROLERS_LIST) {
+            if (data.codeValue == CONTROLERS_LIST[i].syncCode) {
+                CONTROLERS_LIST[i].controllerID = socket.id;
+                result = true;
+                break;
+            }   
+        }        
         socket.emit('addControlerResualt', result);
     });
 
