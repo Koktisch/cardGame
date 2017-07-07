@@ -24,6 +24,7 @@ var USER = function (data, user, controller) {
         id: data.id,
         userName: user.userName,
         controller: controller,
+        host: null
     }
 
     user.userExist = function () {
@@ -39,6 +40,10 @@ var USER = function (data, user, controller) {
 
     user.setController = function (controllerObj) {
         user.controller = controllerObj;
+    }
+
+    user.setHost = function (hostId) {
+        user.host = hostId;
     }
 
     return user;
@@ -81,6 +86,10 @@ var HOST = function (id, player, data) {
 
     party.removeParty = function () {
         hostGames.pop(party);
+    }
+
+    party.addSecondPlayer = function (player2) {
+        party.secondPlayer = player2;
     }
 
     return party;
@@ -147,9 +156,9 @@ io.sockets.on('connection', function (socket) {
     socket.on('hostGame', function (data) {
         console.log('Creating host');
         var goodName = true;
-        var lobby = HOST(socket.id, PLAYER_LIST[socket.id].userName, data);
+        var lobby = HOST(socket.id, PLAYER_LIST[socket.id], data);
         lobby.createParty();
-
+        PLAYER_LIST[socket.id].setHost(socket.id);
         console.log(socket.id + '-' + 'USERNAME: ' + lobby.firstPlayer);
         for (var i in SOCKET_LIST) {
              SOCKET_LIST[i].emit('partyList', hostGames);
@@ -160,6 +169,19 @@ io.sockets.on('connection', function (socket) {
         socket.emit('adminLeaveLobbyResault', deleteHostedGame());
     });
 
+    socket.on('joinGame', function (data) {
+        var stop = false;
+        var i = 0;
+        do {
+            if (hostGames[i] !== 'undefined' && hostGames[i].id === data.ID) {
+                hostGames[i].addSecondPlayer(PLAYER_LIST[socket.id]);
+                break;
+            }
+            i++;
+        } while (!stop);
+        SOCKET_LIST[hostGames[i].firstPlayer.id].emit('startGame', {});
+        SOCKET_LIST[hostGames[i].secondPlayer.id].emit('startGame', {});
+    });
 
     //Controller
 
@@ -180,6 +202,22 @@ io.sockets.on('connection', function (socket) {
             }   
         }        
         socket.emit('addControlerResualt', result);
+    });
+
+    //Password
+
+    socket.on('checkPassword', function (data) {
+        var isCorrect;
+        for (var a = 0; a < hostGames.length; a++) {
+            if (hostGames[a].id === data.id) {
+                isCorrect = hostGames[a].password === data.password;
+                break;
+            }
+        }
+        socket.emit('checkPasswordResualt', {
+            resualt: isCorrect,
+            id: data.id
+        });
     });
 
 });

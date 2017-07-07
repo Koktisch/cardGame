@@ -102,6 +102,15 @@
             background-color: pink;
             width: 100px;
             height: 100px;
+            top: 170px;
+        }
+
+        #passBox{
+            position: absolute;
+            background-color: greenyellow;
+            width: 100px;
+            height: 100px;
+            display: none;
         }
     </style>
     <script>
@@ -152,7 +161,7 @@
                     
                     div.classList.add('gameDiv');
                     div.id = data[gameNum].partyStatus + '?' + data[gameNum].id;
-                    div.innerHTML = 'Gra użytkownika: ' + data[gameNum].firstPlayer;
+                    div.innerHTML = 'Gra użytkownika: ' + data[gameNum].firstPlayer.userName;
                     div.appendChild(btn);
                     document.getElementById("gamesBox").appendChild(div);
                 }
@@ -169,6 +178,7 @@
                 {
                     document.getElementsByClassName('blockBox')[0].style.display = "none";
                     document.getElementById('logBox').style.display = "none";
+                    getControllerCode();
                 }
                 else {
                     alert('Nazwa już istnieje. Wybierz inną.');
@@ -197,16 +207,18 @@
         }; 
 
         function joinLobby(e) {
-            let idStr = e.parentElement.id;
-            idStr = idStr.substring(0, idStr.indexOf('?'));
-            if (idStr == partyStatusEnum.private) {
-
-                getControllerCode();
+            let statusStr = '';
+            let idStr = '';            
+            statusStr = e.parentElement.id.charAt(0);
+            idStr = e.parentElement.id.substring(2);            
+            if (statusStr == partyStatusEnum.private) {
+                $('#passBox').css('display', 'block');
+                $('#passBox').attr('value', idStr);
             }
             else {
-                getControllerCode();
+                socket.emit('joinGame', { ID: idStr });
             }
-        };     
+        };   
 
         function leaveLobby() {
             socket.emit('adminLeaveLobby', {});
@@ -223,22 +235,43 @@
             socket.on('getControllerCodeRes', function (code) {
                 $('#aForCode').val(code);
                 $('#controllerCode').css('display','block');
+            });            
+        }
+
+        function checkPassword()
+        {
+            var isCorrect;
+            socket.emit('checkPassword', {
+                password: $('#pass-input').val(),
+                id: $('#passBox').attr('value')
             });
 
-            socket.on('addControlerResualt', function (data) {
-                if (dat === true)
+            socket.on('checkPasswordResualt', function (data) {
+                if(data.resualt)
                 {
-                    alert('Przygotowuję grę');
+                    joinLobby(id);
                 }
-                else {
-                    alert('Error połączenia kontrolera!');
-                }               
+                else
+                {
+                    alert('Złe hasło');
+                }
             });
+
+           
         }
 
         function addControler() {
             socket.emit('addControler', {
                 codeValue: $('#controlerCode').val()
+            });
+
+            socket.on('addControlerResualt', function (data) {
+                if (dat === true) {
+                    alert('Przygotowuję grę');
+                }
+                else {
+                    alert('Error połączenia kontrolera!');
+                }
             });
         }
     </script>
@@ -275,6 +308,7 @@
     <!--Divy z position absolute-->
     <div id="passBox">
         Wprowadź hasło: <input id="pass-input" type="password" />
+        <button id="btnPass" onclick="checkPassword()">Enter</button>
     </div>
     <div id="connectController">Wpisz kod by połączyć go z kontrolerem
         <a>Kod: </a><input type="text" id="controlerCode" />
