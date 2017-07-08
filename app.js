@@ -121,16 +121,15 @@ io.sockets.on('connection', function (socket) {
         deleteHostedGame();
         delete SOCKET_LIST[socket.id];
         delete PLAYER_LIST[socket.id];        
-        
-        console.log('disconect ' + socket.id);
+        emitLobbys();
     });
 
     function deleteHostedGame() {
         var deleted = false;
         var i = 0;
         do {
-            if (hostGames[i] !== 'undefined' && hostGames[i].id === socket.id) {
-                hostGames.splice(i,1);
+            if (hostGames.length != 0 && hostGames[i].id === socket.id) {
+                hostGames.splice(i, 1);
                 deleted = true;
             }
             i++;
@@ -140,10 +139,14 @@ io.sockets.on('connection', function (socket) {
     };
 
     socket.on('getPartyList', function () {
+        emitLobbys();
+    });
+
+    function emitLobbys() {
         for (var i in SOCKET_LIST) {
             SOCKET_LIST[i].emit('partyList', hostGames);
         }
-    });
+    }
 
     socket.on('sendMsgToServer', function (data) {
         var playerName = PLAYER_LIST[socket.id];
@@ -160,9 +163,7 @@ io.sockets.on('connection', function (socket) {
         lobby.createParty();
         PLAYER_LIST[socket.id].setHost(socket.id);
         console.log(socket.id + '-' + 'USERNAME: ' + lobby.firstPlayer);
-        for (var i in SOCKET_LIST) {
-             SOCKET_LIST[i].emit('partyList', hostGames);
-        }
+        emitLobbys();
     });
 
     socket.on('adminLeaveLobby', function (data) {
