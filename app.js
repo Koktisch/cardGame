@@ -17,7 +17,7 @@ app.use('/client', express.static(__dirname + '/client'));
 serv.listen(process.env.PORT || 2000);
 console.log('Server started');
 
-
+var cardType = Object.freeze({ "NoSpy": 0, "Spy": 1 })
 
 var USER = function (data, user, controller) {
     var user = {
@@ -49,7 +49,7 @@ var USER = function (data, user, controller) {
     return user;
 }
 
-var controller = function (socketID)
+var CONTROLLER = function (socketID)
 {
     var controller = {
         controllerID: socketID,
@@ -93,6 +93,49 @@ var HOST = function (id, player, data) {
     }
 
     return party;
+}
+
+
+var CARD = function () {
+
+    var card = {
+        Name: null,
+        Value: null,
+        Text: null,
+        Ability: null,
+        isSpy: null,
+        Image: null,
+        isLocked: false
+    }
+
+    card.Cholera = function () {
+        card.Name = 'Cholera';
+        card.Value = 2;
+        card.Text = 'Os³ab jednostkê o 1 co turê';
+        card.isSpy = cardType.Spy;
+        card.Image = '/client/img/cholera.jpg';
+        card.Ability = null ;
+    }
+
+    card.Mermaind = function () {
+        card.Name = 'Syrena';
+        card.Value = 4;
+        card.Text = 'Przenieœ jedn¹ jednostkê na swoj¹ stronê';
+        card.isSpy = cardType.NoSpy;
+        card.Image = '/client/img/mermaid.jpg';
+        card.Ability = null;
+    }
+
+    card.Cholera = function () {
+        card.Name = 'Ksiê¿ycowy jeŸdziec';
+        card.Value = 6;
+        card.Text = 'Zablokuj umiejêtnoœæ jednej jednostki';
+        card.isSpy = cardType.NoSpy;
+        card.Image = '/client/img/twilight_rider.jpg';
+        card.Ability = null;
+    }
+
+    return card;
 }
 
 var io = require('socket.io')(serv, {});
@@ -187,7 +230,7 @@ io.sockets.on('connection', function (socket) {
     //Controller
 
     socket.on('getControllerCode', function (data) {
-        var phoneController = controller();
+        var phoneController = CONTROLLER();
         phoneController.getCode();
         CONTROLERS_LIST[socket.id] = phoneController;
         PLAYER_LIST[socket.id].setController(phoneController);

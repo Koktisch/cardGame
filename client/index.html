@@ -216,23 +216,25 @@
             if (statusStr == partyStatusEnum.private) {
                 $('#passBox').css('display', 'block');
                 $('#passBox').attr('value', idStr);
+                localStorage.setItem('socketID', socket.id);
                 socket.on('startGame', function (data) {
                     if (phoneModels.test(navigator.userAgent)) {
-                        window.open('controllerPage.html', '_blank', 'location=yes,height=570,width=520,scrollbars=yes,status=yes');
+                        window.open('/client/controllerPage.html');
                     }
                     else {
-                        window.open('gamePage.html', '_blank', 'location=yes,height=570,width=520,scrollbars=yes,status=yes');
+                        window.open('/client/gamePage.html');
                     }
                 });
             }
             else {
                 socket.emit('joinGame', { ID: idStr });
+                localStorage.setItem('socketID', socket.id);
                 socket.on('startGame', function (data) {
                     if (phoneModels.test(navigator.userAgent)) {
-                        window.open('controllerPage.html', '_blank', 'location=yes,height=570,width=520,scrollbars=yes,status=yes');
+                        window.open('/client/controllerPage.html');
                     }
                     else {
-                        window.open('gamePage.html', '_blank', 'location=yes,height=570,width=520,scrollbars=yes,status=yes');
+                        window.open('/client/gamePage.html');
                     }
                 });
             }
