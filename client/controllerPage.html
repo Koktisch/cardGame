@@ -13,6 +13,7 @@
 
         html, body {
             height: 100%;
+            background-color: black;
         }
 
         #controlerBoard {
@@ -20,6 +21,7 @@
             width: 100%;
             background-color: red;
             display: flex;
+            display:none;
         }
 
         .card {
@@ -31,10 +33,33 @@
             margin-right: 20px;
         }
 
+        #connectController {
+            position: absolute;
+            z-index: 10000;
+            left: 50%;
+            top: 20%;
+            background-color: white;
+        }
+
     </style>
     <script>
 
         var socket = io();
+
+        function addControler() {
+            socket.emit('addControler', {
+                codeValue: $('#controlerCode').val()
+            });
+
+            socket.on('addControlerResualt', function (data) {
+                if (dat === true) {
+                    alert('Przygotowuję grę');
+                }
+                else {
+                    alert('Błąd połączenia kontrolera!');
+                }
+            });
+        }
 
         function createCard(name, power, img, abillity, artist, spy)
         {
@@ -63,7 +88,12 @@
 
     </script>
 </head>
-<body onload="loadCards">
+<body>
+    <div id="connectController">
+        Wpisz kod by połączyć go z kontrolerem
+        <a>Kod: </a><input type="text" id="controlerCode" />
+        <button onclick="addControler()">Połącz kontrtoler</button>
+    </div>
     <div id="controlerBoard">
         <div class="card" id="1card">
             <div id="name"></div>

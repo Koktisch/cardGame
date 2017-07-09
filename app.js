@@ -92,6 +92,13 @@ var HOST = function (id, player, data) {
         party.secondPlayer = player2;
     }
 
+    party.startGame = function (hostGame) {
+        SOCKET_LIST[hostGames[i].firstPlayer.id].emit('startGame', { opponent: hostGames[i].secondPlayer });
+        SOCKET_LIST[hostGames[i].firstPlayer.controller.id].emit('startGame', { opponent: hostGames[i].secondPlayer });
+        SOCKET_LIST[hostGames[i].secondPlayer.id].emit('startGame', { opponent: hostGames[i].firstPlayer });
+        SOCKET_LIST[hostGames[i].secondPlayer.controller.id].emit('startGame', { opponent: hostGames[i].secondPlayer });
+    }
+
     return party;
 }
 
@@ -223,13 +230,6 @@ io.sockets.on('connection', function (socket) {
         }
     }
 
-    socket.on('sendMsgToServer', function (data) {
-        var playerName = PLAYER_LIST[socket.id];
-        for (var i in SOCKET_LIST) {
-            SOCKET_LIST[i].emit('addToChat', playerName.userName + ': ' + data.msg);
-        }
-    });
-
     //Hosting
     socket.on('hostGame', function (data) {
         console.log('Creating host');
@@ -246,17 +246,13 @@ io.sockets.on('connection', function (socket) {
     });
 
     socket.on('joinGame', function (data) {
-        var stop = false;
-        var i = 0;
-        do {
+        for (var i = 0; i < hostGame.length; i++){
             if (hostGames[i] !== 'undefined' && hostGames[i].id === data.ID) {
                 hostGames[i].addSecondPlayer(PLAYER_LIST[socket.id]);
+                party.startGame(hostGames[i]);
                 break;
             }
-            i++;
-        } while (!stop);
-        SOCKET_LIST[hostGames[i].firstPlayer.id].emit('startGame', { opponent: hostGames[i].secondPlayer });
-        SOCKET_LIST[hostGames[i].secondPlayer.id].emit('startGame', { opponent: hostGames[i].firstPlayer });
+        }
     });
 
     //Controller
@@ -281,7 +277,6 @@ io.sockets.on('connection', function (socket) {
     });
 
     //Password
-
     socket.on('checkPassword', function (data) {
         var isCorrect;
         for (var a = 0; a < hostGames.length; a++) {
@@ -296,6 +291,10 @@ io.sockets.on('connection', function (socket) {
         });
     });
 
+    //Chat
+    socket.on('message', function (msg) {
+        io.emit('message', PLAYER_LIST[socket.id].userName+': ' + msg);
+    });
 
     //Game
 

@@ -35,14 +35,7 @@
             z-index: 10000;
             left: 50%;
             top: 35%;
-        }
-
-        #connectController {
-            position: absolute;
-            z-index: 10000;
-            left: 50%;
-            top: 20%;
-        }
+        }        
 
         #logBox {
             position: relative;
@@ -103,7 +96,8 @@
             width: 100px;
             height: 100px;
             top: 170px;
-        }
+            display: none;
+         }
 
         #passBox{
             position: absolute;
@@ -111,6 +105,20 @@
             width: 100px;
             height: 100px;
             display: none;
+        }
+
+        #msgControls{
+            position: absolute;
+            bottom: 0px;
+            left: 0px;
+        }
+
+        #messages {
+            padding-left: 10px;
+        }
+        
+        ul {
+            list-style-type: none;
         }
     </style>
     <script>
@@ -123,7 +131,7 @@
             'Opera Mini|IEMobile|Mobile',
             'i');
 
-        if (phoneModels.test(navigator.userAgent))
+      /*  if (phoneModels.test(navigator.userAgent))
         {
             $('#logAbs').css('display', 'none');
             $('#connectController').css('display', 'block');
@@ -133,11 +141,25 @@
             $('#logAbs').css('display', 'block');
             $('#connectController').css('display', 'none');
 
-        }       
+        }   */    
+
+        function sendMsg()
+        {
+            socket.emit('message', $('#txtInp').val());
+            $('#txtInp').val('');
+        }
+
+        socket.on('message', function (msg) {
+            $('#messages').append($('<li>').text(msg));
+            $("html, body").scrollTop($(document).height());
+        });
 
         getLobbysFromServer();
 
         function getLobbysFromServer() {
+            if (phoneModels.test(navigator.userAgent)) {
+                window.open('/client/controllerPage.html');
+            }
             socket.emit('getPartyList');
             socket.on('partyList', function (data) {
                 let gamesBox = document.getElementById("gamesBox");
@@ -219,12 +241,7 @@
                 localStorage.setItem('socketID', socket.id);                
                 socket.on('startGame', function (data) {
                     localStorage.setItem('enemyID', data.opponent);
-                   // if (phoneModels.test(navigator.userAgent)) {
-                        window.open('/client/controllerPage.html');
-                    /*}
-                    else {
-                        window.open('/client/gamePage.html');
-                    }*/
+                    window.open('/client/gamePage.html');
                 });
             }
             else {
@@ -232,12 +249,7 @@
                 localStorage.setItem('socketID', socket.id);
                 socket.on('startGame', function (data) {
                     localStorage.setItem('enemyID', data.opponent);
-                    //if (phoneModels.test(navigator.userAgent)) {
-                        window.open('/client/controllerPage.html');
-                    /*}
-                    else {
-                        window.open('/client/gamePage.html');
-                    }*/
+                    window.open('/client/gamePage.html');
                 });
             }
         };   
@@ -255,7 +267,7 @@
             socket.emit('getControllerCode', {});
 
             socket.on('getControllerCodeRes', function (code) {
-                $('#aForCode').val(code);
+                $('#aForCode').html(code);
                 $('#controllerCode').css('display','block');
             });            
         }
@@ -279,23 +291,9 @@
                 }
             });
 
-           
-        }
+       }
 
-        function addControler() {
-            socket.emit('addControler', {
-                codeValue: $('#controlerCode').val()
-            });
-
-            socket.on('addControlerResualt', function (data) {
-                if (dat === true) {
-                    alert('Przygotowuję grę');
-                }
-                else {
-                    alert('Error połączenia kontrolera!');
-                }
-            });
-        }
+        
     </script>
 </head>
 <body onload="getLobbysFromServer()">
@@ -315,26 +313,21 @@
             </select>
             <a>Hasło</a><input type="password" id="password" hidden/>
             <button onclick="hostGame()">Stwórz pokój</button>
-        </div>
+        </div>          
         <div id="chat">
-            
+            <ul id="messages"></ul>
+            <div id="msgControls">
+                <input id="txtInp" autocomplete="off" /><button onclick="sendMsg()">Send</button>
+            </div>
         </div>
-        <form id="chat-form" onsubmit="chatMsg()">
-            <input id="chat-input" type="text" />
-        </form>
     </div>
     <div id="gamesBox">
 
-    </div>
-
+    </div>    
     <!--Divy z position absolute-->
     <div id="passBox">
         Wprowadź hasło: <input id="pass-input" type="password" />
         <button id="btnPass" onclick="checkPassword()">Enter</button>
-    </div>
-    <div id="connectController">Wpisz kod by połączyć go z kontrolerem
-        <a>Kod: </a><input type="text" id="controlerCode" />
-        <button onclick="addControler()">Połącz kontrtoler</button>
     </div>
     <div id="controllerCode"> Wejdź wejdź na telefonie tutaj i wpisz poniższy kod.
         <a id="aForCode"></a>
