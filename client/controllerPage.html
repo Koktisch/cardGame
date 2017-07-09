@@ -4,6 +4,8 @@
 <head>
     <meta charset="utf-8" />
     <title></title>
+    <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
     <style>
         body {
             margin: 0px;
@@ -17,12 +19,60 @@
             height: 100%;
             width: 100%;
             background-color: red;
+            display: flex;
         }
-    </style>
-</head>
-<body>
-    <div id="controlerBoard">
 
+        .card {
+            width: 200px;
+            height: 280px;
+            background-color: white;
+            align-self: center;
+            margin-left: 20px;
+            margin-right: 20px;
+        }
+
+    </style>
+    <script>
+
+        var socket = io();
+
+        function createCard(name, power, img, abillity, artist, spy)
+        {
+            var innerTxt =
+                '<div id="power">' + power +
+                '</div> <div id="name">' + name +
+                '</div> < div id="img" >' + img +
+                '</div > <div id="ability">' + abillity +
+                '</div> <div id="isSpy">' + spy + 
+                '</div> <div id="created">' + artist + '</div>';
+
+            return innerTxt;
+        }
+
+        function loadCards()
+        {
+            socket.emit('getCardList', {});
+            socket.on('cardDeck', function (data) {
+                for (var i = 0; i < data.deck.lenght; i++)
+                {
+                    var card = data[i];
+                    $('#' + i + 'card').html(createCard(card.Name, card.Value, card.Image, card.Ability, card.createdBy, card.isSpy));
+                }
+            });
+        }
+
+    </script>
+</head>
+<body onload="loadCards">
+    <div id="controlerBoard">
+        <div class="card" id="1card">
+            <div id="name"></div>
+            <div id="img"></div>
+            <div id="ability"></div>
+            <div id="created"></div>
+        </div>
+        <div class="card" id="2card"></div>
+        <div class="card" id="3card"></div>
     </div>
 </body>
 </html>

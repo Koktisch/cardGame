@@ -1,4 +1,3 @@
-// JavaScript source code
 var express = require('express');
 var app = express();
 var serv = require('http').Server(app);
@@ -6,6 +5,7 @@ var hostGames = [];
 var PLAYER_LIST = {};
 var SOCKET_LIST = {};
 var CONTROLERS_LIST = {};
+var TABLE = {};
 
 var $ = require('jquery');
 
@@ -95,6 +95,24 @@ var HOST = function (id, player, data) {
     return party;
 }
 
+var mechanic = function () {
+
+    mechanic.setTarget = function () {
+
+    }
+
+    mechanic.destroy = function () {
+
+    }
+
+    mechanic.setup = function () {
+
+    }
+
+    mechanic.moving = function () {
+
+    }
+}
 
 var CARD = function () {
 
@@ -105,7 +123,9 @@ var CARD = function () {
         Ability: null,
         isSpy: null,
         Image: null,
-        isLocked: false
+        isLocked: false,
+        createdBy: null,
+        basicFunctions: mechanic
     }
 
     card.Cholera = function () {
@@ -113,8 +133,9 @@ var CARD = function () {
         card.Value = 2;
         card.Text = 'Os³ab jednostkê o 1 co turê';
         card.isSpy = cardType.Spy;
-        card.Image = '/client/img/cholera.jpg';
-        card.Ability = null ;
+        card.Image = '/img/cholera.jpg';
+        card.Ability = null;
+        card.createdBy = 'https://vasylina.deviantart.com/';
     }
 
     card.Mermaind = function () {
@@ -122,17 +143,28 @@ var CARD = function () {
         card.Value = 4;
         card.Text = 'Przenieœ jedn¹ jednostkê na swoj¹ stronê';
         card.isSpy = cardType.NoSpy;
-        card.Image = '/client/img/mermaid.jpg';
+        card.Image = '/img/mermaid.jpg';
         card.Ability = null;
+        card.createdBy = 'https://vasylina.deviantart.com/';
     }
 
-    card.Cholera = function () {
+    card.twilight_rider = function () {
         card.Name = 'Ksiê¿ycowy jeŸdziec';
         card.Value = 6;
         card.Text = 'Zablokuj umiejêtnoœæ jednej jednostki';
         card.isSpy = cardType.NoSpy;
-        card.Image = '/client/img/twilight_rider.jpg';
+        card.Image = '/img/twilight_rider.jpg';
         card.Ability = null;
+        card.createdBy = 'https://vasylina.deviantart.com/';
+    }
+
+    card.getDeck = function () {
+        var deck = [];
+        deck.push(card.Cholera());
+        deck.push(card.Mermaind());
+        deck.push(card.twilight_rider());
+
+        return deck;
     }
 
     return card;
@@ -223,8 +255,8 @@ io.sockets.on('connection', function (socket) {
             }
             i++;
         } while (!stop);
-        SOCKET_LIST[hostGames[i].firstPlayer.id].emit('startGame', {});
-        SOCKET_LIST[hostGames[i].secondPlayer.id].emit('startGame', {});
+        SOCKET_LIST[hostGames[i].firstPlayer.id].emit('startGame', { opponent: hostGames[i].secondPlayer });
+        SOCKET_LIST[hostGames[i].secondPlayer.id].emit('startGame', { opponent: hostGames[i].firstPlayer });
     });
 
     //Controller
@@ -262,6 +294,14 @@ io.sockets.on('connection', function (socket) {
             resualt: isCorrect,
             id: data.id
         });
+    });
+
+
+    //Game
+
+    socket.on('getCardList', function (data) {
+        var cardDeck = CARD();
+        socket.emit('cardDeck', { deck: cardDeck.getDeck() });
     });
 
 });
