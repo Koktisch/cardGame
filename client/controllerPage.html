@@ -60,8 +60,7 @@
 
         function addControler() {
             socket.emit('addControler', {
-                codeValue: $('#controlerCode').val(),
-                socketID: localStorage.getItem('socketID')
+                codeValue: $('#controlerCode').val()
             });
 
             socket.on('addControlerResualt', function (data) {

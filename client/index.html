@@ -237,7 +237,6 @@
         function startGame()
         {
             socket.on('startGame', function (data) {
-                localStorage.setItem('socketID', socket.id);
                 localStorage.setItem('hostID', JSON.stringify(data));
                 window.open('/client/gamePage.html');
             });

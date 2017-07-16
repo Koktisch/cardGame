@@ -276,12 +276,15 @@ io.sockets.on('connection', function (socket) {
     });
     socket.on('addControler', function (data) {
         var result = false;
-        if (data.codeValue == CONTROLERS_LIST[data.socketID].syncCode) {
-            CONTROLERS_LIST[data.socketID].controllerID = socket.id;
-            result = true;
-        }     
+        for (var i in CONTROLERS_LIST) {
+            if (data.codeValue == CONTROLERS_LIST[i].syncCode) {
+                CONTROLERS_LIST[i].controllerID = socket.id;
+                result = true;
+                break;
+            }
+        } 
+        SOCKET_LIST[CONTROLERS_LIST[i].userID].emit('addControlerResualt', result);
        SOCKET_LIST[socket.id].emit('addControlerResualt', result);
-       SOCKET_LIST[data.socketID].emit('addControlerResualt', result);
     });
 
     //Password
