@@ -41,22 +41,36 @@
             background-color: white;
         }
 
+        #waiting{
+            display: none;
+            width: 100px;
+            height: 100px;
+            background-color: white;
+        }
+
+        #error{
+            color: red;
+        }
+
     </style>
     <script>
-
         var socket = io();
+
+        var game = JSON.parse(localStorage.getItem('hostGame'));
 
         function addControler() {
             socket.emit('addControler', {
-                codeValue: $('#controlerCode').val()
+                codeValue: $('#controlerCode').val(),
+                socketID: localStorage.getItem('socketID')
             });
 
             socket.on('addControlerResualt', function (data) {
-                if (dat === true) {
-                    alert('Przygotowuję grę');
+                if (data === true) {
+                    $('#waiting').css('display', 'block');
+                    $('#connectController').css('display', 'none');
                 }
                 else {
-                    alert('Błąd połączenia kontrolera!');
+                    $('#error').html('Błąd połączenia kontrolera!');
                 }
             });
         }
@@ -74,25 +88,31 @@
             return innerTxt;
         }
 
-        function loadCards()
-        {
-            socket.emit('getCardList', {});
-            socket.on('cardDeck', function (data) {
-                for (var i = 0; i < data.deck.lenght; i++)
-                {
-                    var card = data[i];
-                    $('#' + i + 'card').html(createCard(card.Name, card.Value, card.Image, card.Ability, card.createdBy, card.isSpy));
-                }
-            });
-        }
+        socket.on('startGame', function (data) {
+            localStorage.setItem('hostGame', JSON.stringify(data));
+            loadCards(data.deck);
+        });
 
+        function loadCards(card)
+        {
+            for (var i = 0; i < card.lenght; i++)
+            {
+                var card = card[i];
+                $('#' + i + 'card').html(createCard(card.Name, card.Value, card.Image, card.Ability, card.createdBy, card.isSpy));
+            }                
+        }
+       
     </script>
 </head>
 <body>
     <div id="connectController">
         Wpisz kod by połączyć go z kontrolerem
         <a>Kod: </a><input type="text" id="controlerCode" />
-        <button onclick="addControler()">Połącz kontrtoler</button>
+        <button onclick="addControler()">Połącz kontrtoler</button> 
+        <a id="error"></a>
+    </div>
+    <div id="waiting">
+        Czekam na rozpoczęcie gry.
     </div>
     <div id="controlerBoard">
         <div class="card" id="1card">

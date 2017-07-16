@@ -156,6 +156,10 @@
 
         getLobbysFromServer();
 
+        socket.on('addControlerResualt', function (data) {
+            $('#controllerCode').css('display', 'none');
+        });
+
         function getLobbysFromServer() {
             if (phoneModels.test(navigator.userAgent)) {
                 window.open('/client/controllerPage.html');
@@ -175,6 +179,7 @@
                     let btn = document.createElement("button");
                     if (data[gameNum].id === socket.id) {
                         btn.innerText = 'Wyjdż z pokoju';
+                        btn.id = 'btnForLinked'
                         btn.onclick = function () { leaveLobby(); };
                     }
                     else{
@@ -199,9 +204,9 @@
 
             socket.on('addPlayerResult', function(data) {
                 if (data === false)
-                {
-                    document.getElementsByClassName('blockBox')[0].style.display = "none";
-                    document.getElementById('logBox').style.display = "none";
+                {                   
+                    $('#logBox').css('display', 'none');
+                    $('.blockBox').css('display', 'none');
                     getControllerCode();
                 }
                 else {
@@ -226,9 +231,17 @@
                 partyStatus: document.getElementById('partyStatus').selectedIndex,
                 password: document.getElementById('password').value 
             });
-
-            getControllerCode();
+            startGame();
         }; 
+
+        function startGame()
+        {
+            socket.on('startGame', function (data) {
+                localStorage.setItem('socketID', socket.id);
+                localStorage.setItem('hostID', JSON.stringify(data));
+                window.open('/client/gamePage.html');
+            });
+        }
 
         function joinLobby(e) {
             let statusStr = '';
@@ -238,19 +251,11 @@
             if (statusStr == partyStatusEnum.private) {
                 $('#passBox').css('display', 'block');
                 $('#passBox').attr('value', idStr);
-                localStorage.setItem('socketID', socket.id);                
-                socket.on('startGame', function (data) {
-                    localStorage.setItem('enemyID', data.opponent);
-                    window.open('/client/gamePage.html');
-                });
+                startGame();
             }
             else {
                 socket.emit('joinGame', { ID: idStr });
-                localStorage.setItem('socketID', socket.id);
-                socket.on('startGame', function (data) {
-                    localStorage.setItem('enemyID', data.opponent);
-                    window.open('/client/gamePage.html');
-                });
+                startGame();
             }
         };   
 
