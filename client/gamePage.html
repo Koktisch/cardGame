@@ -23,13 +23,40 @@
     </style>
     <script>
 
-       var socket = io();
+        var socket = io();
+
+        var host = JSON.parse(localStorage.getItem('hostID'));
+        host = host.game;
+
+        var playerId = localStorage.getItem('socketID');
+
+        socket.emit('setBoard', { playerId: playerId});
+        socket.emit('setPriority', { hostGame: host});
+
+        socket.on('setPriority', function (data) {
+            $('#priority').html(data.starting);
+        });
+
 
     </script>
 </head>
 <body>
+    <div id="priority"></div>
     <div id="board">
-        <button onclick="test()"></button>
+        <div id="enemyPlayerBoard">
+            <div id="enPlace1"></div>
+            <div id="enPlace2"></div>
+            <div id="enPlace3"></div>
+            <div id="enPlace4"></div>
+            <div id="enPlace5"></div>
+        </div>
+        <div id="playerBoard">
+            <div id="place1"></div>
+            <div id="place2"></div>
+            <div id="place3"></div>
+            <div id="place4"></div>
+            <div id="place5"></div>
+        </div>
     </div>
 </body>
 </html>

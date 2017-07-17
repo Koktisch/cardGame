@@ -19,12 +19,16 @@ console.log('Server started');
 
 var cardType = Object.freeze({ "NoSpy": 0, "Spy": 1 })
 
-var USER = function (data, user, controller) {
+var USER = function (data, user) {
     var user = {
         id: data.id,
         userName: user.userName,
-        controller: controller,
-        host: null
+        controller: null,
+        host: null,
+        board: null
+    }
+    user.setBoard = function (data) {
+        user.board = SOCKET_LIST[data];
     }
 
     user.userExist = function () {
@@ -52,6 +56,7 @@ var USER = function (data, user, controller) {
 var CONTROLLER = function (socketID)
 {
     var controller = {
+        userID: null,
         controllerID: socketID,
         syncCode: null 
     }
@@ -65,6 +70,10 @@ var CONTROLLER = function (socketID)
 
         controller.syncCode = text;
         return text;
+    }
+
+    controller.setPlayer = function (userID) {
+        controller.userID = userID;
     }
 
     return controller;
@@ -92,11 +101,11 @@ var HOST = function (id, player, data) {
         party.secondPlayer = player2;
     }
 
-    party.startGame = function (hostGame) {
-        SOCKET_LIST[hostGames[i].firstPlayer.id].emit('startGame', { opponent: hostGames[i].secondPlayer });
-        SOCKET_LIST[hostGames[i].firstPlayer.controller.id].emit('startGame', { opponent: hostGames[i].secondPlayer });
-        SOCKET_LIST[hostGames[i].secondPlayer.id].emit('startGame', { opponent: hostGames[i].firstPlayer });
-        SOCKET_LIST[hostGames[i].secondPlayer.controller.id].emit('startGame', { opponent: hostGames[i].secondPlayer });
+    party.startGame = function () {
+        SOCKET_LIST[party.firstPlayer.id].emit('startGame', { game: party });
+        SOCKET_LIST[party.firstPlayer.controller.controllerID].emit('startGame', { game: party, deck: CARD().getDeck() });
+        SOCKET_LIST[party.secondPlayer.id].emit('startGame', { game: party });
+        SOCKET_LIST[party.secondPlayer.controller.controllerID].emit('startGame', { game: party, deck: CARD().getDeck() });
     }
 
     return party;
@@ -246,10 +255,10 @@ io.sockets.on('connection', function (socket) {
     });
 
     socket.on('joinGame', function (data) {
-        for (var i = 0; i < hostGame.length; i++){
+        for (var i = 0; i < hostGames.length; i++){
             if (hostGames[i] !== 'undefined' && hostGames[i].id === data.ID) {
                 hostGames[i].addSecondPlayer(PLAYER_LIST[socket.id]);
-                party.startGame(hostGames[i]);
+                hostGames[i].startGame();
                 break;
             }
         }
@@ -260,6 +269,7 @@ io.sockets.on('connection', function (socket) {
     socket.on('getControllerCode', function (data) {
         var phoneController = CONTROLLER();
         phoneController.getCode();
+        phoneController.setPlayer(socket.id);
         CONTROLERS_LIST[socket.id] = phoneController;
         PLAYER_LIST[socket.id].setController(phoneController);
         socket.emit('getControllerCodeRes', phoneController.syncCode);
@@ -271,9 +281,10 @@ io.sockets.on('connection', function (socket) {
                 CONTROLERS_LIST[i].controllerID = socket.id;
                 result = true;
                 break;
-            }   
-        }        
-        socket.emit('addControlerResualt', result);
+            }
+        } 
+        SOCKET_LIST[CONTROLERS_LIST[i].userID].emit('addControlerResualt', result);
+       SOCKET_LIST[socket.id].emit('addControlerResualt', result);
     });
 
     //Password
@@ -297,10 +308,21 @@ io.sockets.on('connection', function (socket) {
     });
 
     //Game
+    socket.on('setPriority', function (hostgame) {
+        if (Math.random() > 0.5) {
+            SOCKET_LIST[hostgame.firstPlayer.board.id].emit('setPriority', { starting: 'Zaczynasz' });
+            SOCKET_LIST[hostgame.secondPlayer.board.id].emit('setPriority', { starting: 'Rozpoczyna przeciwnik' });
+        }
+        else {
+            SOCKET_LIST[hostgame.firstPlayer.board.id].emit('setPriority', { starting: 'Rozpoczyna przeciwnik' });
+            SOCKET_LIST[hostgame.secondPlayer.board.id].emit('setPriority', { starting: 'Zaczynasz' });
+        }
+    });
 
-    socket.on('getCardList', function (data) {
-        var cardDeck = CARD();
-        socket.emit('cardDeck', { deck: cardDeck.getDeck() });
+
+    //Board
+    socket.on('setBoard', function (data) {
+        PLAYER_LIST[data.playerId].setBoard(socket.id);
     });
 
 });
