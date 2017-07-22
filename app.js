@@ -151,6 +151,7 @@ var CARD = function () {
         card.isSpy = cardType.Spy;
         card.Image = '/img/cholera.jpg';
         card.Ability = null;
+        card.Function = '';
         card.createdBy = 'https://vasylina.deviantart.com/';
     }
 
