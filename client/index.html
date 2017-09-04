@@ -5,31 +5,33 @@
     <meta charset="utf-8" />
     <title></title>
     <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
-    <link rel="stylesheet" href="/mainStyle.css" />
-    <link rel="stylesheet" href="/controler.css" />
-    <script type="text/javascript" src="/js/Board.js"></script>
-    <script type="text/javascript" src="/js/Controller.js"></script>
-    <script type="text/javascript" src="/js/MainPage .js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script> 
+    <link rel="stylesheet" href="client/css/mainStyle.css" />
+    <link rel="stylesheet" href="client/css/controler.css" />
+    <script>
+        var partyStatusEnum = Object.freeze({ "public": 0, "private": 1, "full": 2 })
+
+        var phoneModels = new RegExp('Android|webOS|iPhone|iPad|' +
+            'BlackBerry|Windows Phone|' +
+            'Opera Mini|IEMobile|Mobile',
+            'i');       
+
+        var socket = io();
+
+    </script>
+    <script type="text/javascript" src="client/js/Board.js"></script>
+    <script type="text/javascript" src="client/js/Controller.js"></script>
+    <script type="text/javascript" src="client/js/MainPage.js"></script>
 </head>
-<body onload="getLobbysFromServer()">
-    <div id="linkBox">
+<body onload="setDivs(); getLobbysFromServer()">
+    <div id="pc">    
         <div class="blockBox"></div>
         <div id="logAbs">
             <div id="logBox">
                 <a>Username</a><input type="text" id="userName" />
                 <button onclick="addPlayer()">Zaloguj się</button>
-               <!--<button onclick="addGuest()">Wejdź jako gość</button>--> 
             </div>
         </div>
-        <div id="connectController">
-            Wpisz kod by połączyć go z kontrolerem
-            <a>Kod: </a><input type="text" id="controlerCode" />
-            <button onclick="addControler()">Połącz kontrtoler</button>
-            <a id="error"></a>
-        </div>
-    </div>
-    <div id="pc">        
         <div id="socialBox">
             <div id="hostBox">
                 <select id="partyStatus" onchange="$('#password').toggle();">
@@ -60,53 +62,47 @@
         </div>
     </div>
 
-    <div id="mobile">        
-        <div id="waiting">
-            Czekam na rozpoczęcie gry.
+    <div id="mobile">     
+        <div class="blockBox">
+            <div id="waiting">
+                Czekam na rozpoczęcie gry.
+            </div>  
+            <p id="opponentMove">Ruch przeciwnika</p>
         </div>
-        <div id="controlerBoard">
-            <div class="card" id="1card" onclick="">
-            </div>
-            <div class="card" id="2card"></div>
-            <div class="card" id="3card"></div>
+        <div id="connectController">
+            Wpisz kod by połączyć go z kontrolerem
+            <a>Kod: </a><input type="text" id="controlerCode" />
+            <button onclick="addControler()">Połącz kontrtoler</button>
+            <a id="error"></a>
+        </div>
+        <div id="controlerBoard">           
+        </div>      
+
+        <button id="atackPosition" onclick="setInPos('attack')">Pozycja atakująca</button>
+        <button id="defensPosition" onclick="setInPos('defense')">Pozycja obronna</button>
+
+        <div id="closeGame">
+            <button onclick="closeBoard()">Zamknij</button>
         </div>
     </div>
 
     <div id="board">
+        <div id="win">
+            <p>Wygrałeś</p>            
+        </div>
+        <div id="lose">
+            <p>Przegrałeś</p>
+        </div>
         <div id="priority"></div>
-        <div id="board">
-            <div id="enemyPlayerBoard">
-                <div id="enPlace1"></div>
-                <div id="enPlace2"></div>
-                <div id="enPlace3"></div>
-                <div id="enPlace4"></div>
-                <div id="enPlace5"></div>
-            </div>
-            <div id="playerBoard">
-                <div id="place1"></div>
-                <div id="place2"></div>
-                <div id="place3"></div>
-                <div id="place4"></div>
-                <div id="place5"></div>
-            </div>
+        <div id="ownhp"></div>
+        <div id="enehp"></div>
+        <div id="timer"></div>
+        <div id="enemyPlayerBoard">
+        </div>
+        <div id="playerBoard">
         </div>
     </div>
 </body>
 </html>
-<script>
- if (phoneModels.test(navigator.userAgent)) {
-        $('#pc').css('display', 'none');
-        $('#mobile').css('display', 'block');
-        $('#logAbs').css('display', 'none');
-        $('#connectController').css('display', 'block');
-
-    }
-    else {
-        $('#pc').css('display', 'block');
-        $('#mobile').css('display', 'none');
-        $('#logAbs').css('display', 'block');
-        $('#connectController').css('display', 'none');
-    }
-</script>
 
 

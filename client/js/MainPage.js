@@ -1,11 +1,3 @@
-var partyStatusEnum = Object.freeze({ "public": 0, "private": 1, "full": 2 })
-
-var socket = io();
-
-var phoneModels = new RegExp('Android|webOS|iPhone|iPad|' +
-    'BlackBerry|Windows Phone|' +
-    'Opera Mini|IEMobile|Mobile',
-    'i');
 
 function sendMsg() {
     socket.emit('message', $('#txtInp').val());
@@ -23,6 +15,19 @@ socket.on('addControlerResualt', function (data) {
     $('#controllerCode').css('display', 'none');
 });
 
+function setDivs()
+{
+    if (phoneModels.test(navigator.userAgent)) {
+        $('#pc').css('display', 'none');
+        $('#mobile').css('display', 'block');
+
+    }
+    else {
+        $('#pc').css('display', 'block');
+        $('#mobile').css('display', 'none');
+    }
+}
+
 function getLobbysFromServer() {
     if (!phoneModels.test(navigator.userAgent)) {
         socket.emit('getPartyList');
@@ -35,7 +40,7 @@ function getLobbysFromServer() {
                 }
             }
             //wype³nianie game boxa
-            for (var gameNum = 0; gameNum < data.length; gameNum++) {
+            for (var gameNum in data) {
                 let div = document.createElement("div");
                 let btn = document.createElement("button");
                 if (data[gameNum].id === socket.id) {
@@ -76,22 +81,11 @@ function addPlayer() {
     });
 }
 
-function addGuest() {
-    socket.emit('addGuest');
-    socket.on('addPlayerResult', function (data) {
-        if (data === false) {
-            document.getElementsByClassName('blockBox')[0].style.display = "none";
-            document.getElementById('logBox').style.display = "none";
-        }
-    });
-}
-
 function hostGame() {
     socket.emit('hostGame', {
         partyStatus: document.getElementById('partyStatus').selectedIndex,
         password: document.getElementById('password').value
     });
-    startGame();
 };
 
 socket.on('startGame', function (data) {
@@ -106,11 +100,9 @@ function joinLobby(e) {
     if (statusStr == partyStatusEnum.private) {
         $('#passBox').css('display', 'block');
         $('#passBox').attr('value', idStr);
-        startGame();
     }
     else {
         socket.emit('joinGame', { ID: idStr });
-        startGame();
     }
 };
 
@@ -118,8 +110,7 @@ function leaveLobby() {
     socket.emit('adminLeaveLobby', {});
 
     socket.on('adminLeaveLobbyResault', function (data) {
-        if (data == true)
-            getLobbysFromServer();
+        getLobbysFromServer();
     });
 };
 
@@ -149,17 +140,3 @@ function checkPassword() {
     });
 
 }
-
-if (phoneModels.test(navigator.userAgent)) {
-    $('#pc').css('display', 'none');
-    $('#mobile').css('display', 'block');
-    $('#logAbs').css('display', 'none');
-    $('#connectController').css('display', 'block');
-
-}
-else {
-    $('#pc').css('display', 'block');
-    $('#mobile').css('display', 'none');
-    $('#logAbs').css('display', 'block');
-    $('#connectController').css('display', 'none');
-}   

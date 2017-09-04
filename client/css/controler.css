@@ -1,0 +1,101 @@
+﻿#controlerBoard {
+    height: 100%;
+    width: 100%;
+    background-color: red;
+    display: flex;
+    display: none;
+}
+
+.card {
+    width: 200px;
+    height: 280px;
+    background-color: white;
+    align-self: center;
+    margin-left: 20px;
+    margin-right: 20px;
+    float:left;
+}
+
+#connectController {
+    position: absolute;
+    z-index: 10000;
+    left: 50%;
+    top: 20%;
+    background-color: white;
+}
+
+#waiting {
+    display: none;
+    width: 100px;
+    height: 100px;
+    background-color: white;
+}
+
+#error {
+    color: red;
+}
+
+#dropPlace {
+    width: 100%;
+    height: 20%;
+    display: none;
+}
+
+.dropPlace {
+    width: 14.2%;
+    height: 100%;
+    float: left;
+}
+
+img {
+    width: 60%;
+}
+
+#value{
+    float:right;
+    width:25%;
+    height:15%;
+}
+
+#name {
+    float: left;
+    width: 75%;
+    height: 15%;
+}
+
+#ability {
+    float: left;
+    width: 25%;
+    height: 20%;
+}
+
+#isSpy {
+    float: right;
+    width: 25%;
+    height: 5%;
+}
+
+#created {
+    float: left;
+    width: 75%;
+    height: 5%;
+}
+
+#atackPosition {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    display: none;
+}
+
+#defensPosition {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    display: none;
+}
+
+#opponentMove
+{
+    display: none;
+}

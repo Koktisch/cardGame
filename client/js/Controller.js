@@ -1,29 +1,18 @@
-var phoneModels = new RegExp('Android|webOS|iPhone|iPad|' +
-    'BlackBerry|Windows Phone|' +
-    'Opera Mini|IEMobile|Mobile',
-    'i');
-
-if (phoneModels.test(navigator.userAgent)) {
-    var host = JSON.parse(localStorage.getItem('hostID'));
-    host = host.game;
-
-    var playerId = localStorage.getItem('socketID');
-
-    socket.emit('setBoard', { playerId: playerId });
-    socket.emit('setPriority', { hostGame: host });
-
-    socket.on('setPriority', function (data) {
-        $('#priority').html(data.starting);
-    });
-
-
-    socket.on('startGame', function (data) {
-        localStorage.setItem('hostGame', JSON.stringify(data));
+socket.on('startGameController', function (data) {
+    localStorage.setItem('hostGame', JSON.stringify(data));
+    if (data.deck !== 'undefined') {
         loadCards(data.deck);
-    });
-
-
-}
+    }
+    if (data.start) {
+        $('.blockBox').css('display', 'none');
+        $('#opponentMove').css('display', 'none');
+    }
+    else {
+        $('.blockBox').css('display', 'block');
+        $('#opponentMove').css('display', 'block');
+    }
+    $('#waiting').css('display', 'none');
+});
 
 function addControler() {
     socket.emit('addControler', {
@@ -42,22 +31,68 @@ function addControler() {
     });
 }
 
-function createCard(name, value, img, abillity, artist, spy) {
+function createCard(name, cost, dmg, def, img, abillity, artist, spy) {
     var innerTxt =
-        '<div class="card" id="1card" onclick="' + +'">' +
-        '<div id="name">' + value +
-        '<div id="name">' + name +
-        '</div> < div id="img" >' + img +
-        '</div > <div id="ability">' + abillity +
-        '</div> <div id="isSpy">' + spy +
-        '</div> <div id="created">' + artist + '</div></div>';
+        '<div class="card" onclick="choseCard(this)"><div>' +
+        '<div id="cost">' + cost + '</div> ' +
+        '<div id="isSpy">' + spy + '</div>' +
+        '<div id="name">' + name + '</div> ' +
+        '<img src="' + img +'" id="img">' +
+        '<div id="ability">' + abillity + '</div>' +
+        '<div id="dmg">' + dmg + '</div> ' +
+        '<div id="def">' + def + '</div> ' +        
+        '<a id="created" href="' + artist +'"></a> </div></div>';
 
     return innerTxt;
 }
 
 function loadCards(card) {
-    for (var i = 0; i < card.lenght; i++) {
+    for (var i = 0; i < card.length; i++) {
         var card = card[i];
-        $('#controlerBoard').html(createCard(card.Name, card.Value, card.Image, card.Ability, card.createdBy, card.isSpy));
+        $('#controlerBoard').html(createCard(card.Name, card.Cost, card.DmgValue, card.DefValue, card.Image, card.Ability, card.createdBy, card.isSpy));
+    }
+    $('#controlerBoard').css('display', 'block');
+}
+
+function choseCard(e)
+{
+    if (sessionStorage.getItem('card') != e.outerHTML) {
+        sessionStorage.setItem('card', e.outerHTML);
+        $('#atackPosition').css('display', 'block');
+        $('#defensPosition').css('display', 'block');
+    }
+    else {
+        sessionStorage.removeItem('card');
+        $('#atackPosition').css('display', 'none');
+        $('#defensPosition').css('display', 'none');
     }
 }
+
+function setInPos(position)
+{
+    var card = sessionStorage.getItem('card');
+    socket.emit('addCardToBoard', {
+        card: card,
+        position: position
+    });
+}
+
+
+socket.on('setTurn', function (turn) {
+    if (turn.yourTurn)
+    {
+        $('.blockBox').css('display', 'none');
+
+    }
+    else
+    {
+        $('.blockBox').css('display', 'block');
+        $('#opponentMove').css('display', 'block');
+    }    
+});
+
+function closeBoard()
+{
+    socket.emit('closeGame', {});
+}
+
