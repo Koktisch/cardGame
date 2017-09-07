@@ -338,16 +338,21 @@ io.sockets.on('connection', function (socket) {
     //Timer
     socket.on('timer', function () {
         var host = HostGames_LIST[PLAYER_LIST[socket.id].host];
-        for (var i = 10; i >= 1; i--) {
-            setTimeout(function () {
-                SOCKET_LIST[host.firstPlayer.id].emit('timer', { time: i, changeTurn: (i == 1 ? true : false) });
-                SOCKET_LIST[host.secondPlayer.id].emit('timer', { time: i, changeTurn: (i == 1 ? true : false) });
-                if (i == 1) {
-                    changeTurn(host, false);
-                }
-            }, 750);
-        }
+        timer(11, host);
     });
+
+    function timer(i, host) {
+        i--;
+        SOCKET_LIST[host.firstPlayer.id].emit('timer', { time: i, changeTurn: (i == 0 ? true : false) });
+        SOCKET_LIST[host.secondPlayer.id].emit('timer', { time: i, changeTurn: (i == 0 ? true : false) });
+        if (i == 0) {
+            changeTurn(host, false);
+        }
+        else {
+            setTimeout(function (){ timer(i, host); }, 1000);
+        }
+
+    }
 
     function changeTurn(host, bolVal) {
 
