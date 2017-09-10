@@ -31,12 +31,11 @@ function addControler() {
     });
 }
 
-function createCard(name, cost, dmg, def, img, abillity, artist, spy) {
+function createCard(id, name, cost, dmg, def, img, abillity, artist, spy) {
     var innerTxt =
         '<div class="card" onclick="choseCard(this)"><div>' +
-        '<div id="cost">' + cost + '</div> ' +
         '<div id="isSpy">' + spy + '</div>' +
-        '<div id="name">' + name + '</div> ' +
+        '<div class="name" id="IDS' + id +'">' + name + '</div> ' +
         '<img src="' + img +'" id="img">' +
         '<div id="ability">' + abillity + '</div>' +
         '<div id="dmg">' + dmg + '</div> ' +
@@ -46,10 +45,10 @@ function createCard(name, cost, dmg, def, img, abillity, artist, spy) {
     return innerTxt;
 }
 
-function loadCards(card) {
-    for (var i = 0; i < card.length; i++) {
-        var card = card[i];
-        $('#controlerBoard').html(createCard(card.Name, card.Cost, card.DmgValue, card.DefValue, card.Image, card.Ability, card.createdBy, card.isSpy));
+function loadCards(cards) {
+    for (var i = 0; i < cards.length; i++) {
+        var card = cards[i];
+        $('#controlerBoard').append(createCard(card.ID, card.Name, card.Cost, card.DmgValue, card.DefValue, card.Image, card.Ability, card.createdBy, card.isSpy));
     }
     $('#controlerBoard').css('display', 'block');
 }
@@ -86,6 +85,8 @@ socket.on('setTurn', function (turn) {
     }
     else
     {
+        $('#atackPosition').css('display', 'none');
+        $('#defensPosition').css('display', 'none');
         $('.blockBox').css('display', 'block');
         $('#opponentMove').css('display', 'block');
     }    
@@ -93,6 +94,7 @@ socket.on('setTurn', function (turn) {
 
 function closeBoard()
 {
+    $('#closeGame').css('display', 'block');
     socket.emit('closeGame', {});
 }
 

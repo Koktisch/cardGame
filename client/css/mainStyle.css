@@ -142,3 +142,11 @@ ul {
     width: 100%;
     height: 48%;
 }
+
+#lose{
+    display:none;
+}
+
+#win {
+    display: none;
+}

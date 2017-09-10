@@ -24,7 +24,6 @@ var USER = function (data, user) {
     var user = {
         id: data.id,
         userName: user.userName,
-        hp: 100,
         controller: null,
         host: null,
     }
@@ -53,16 +52,18 @@ var USER = function (data, user) {
 
 var BOARD = function (data) {
     var board = {
-        host: data.id,
+        host: data,
         table: [],
-        ownHP: 100,
-        enemyHP: 100
+        ownHP: 15,
+        enemyHP: 15
     }   
 
     board.addCard = function (card, player, position) {
-        board.table.push({ card: card, owner: player, position: position });
+        var pos = card.indexOf('"', card.indexOf('IDS'));
+        var name = card.substring(card.indexOf('IDS') + 3, pos);
+        var cardObj = CARD().findObject(name);
+        board.table.push({ card: cardObj, owner: player, position: position });
     }
-
 
     return board;
 }
@@ -98,6 +99,7 @@ var HOST = function (id, player, data) {
         id: id,
         firstPlayer: player,
         secondPlayer: null,
+        board: null,
         partyStatus: data.partyStatus ,
         password: data.password
     }
@@ -115,18 +117,23 @@ var HOST = function (id, player, data) {
         party.secondPlayer = player2;
     }
 
+    party.addBoard = function (board) {
+        party.board = board;
+    }
+
     party.startGame = function () {
-        var deck = CARD().getDeck();
+        var deck = [CARD().Cholera(), CARD().Mermaind(), CARD().Twilight_rider(), CARD().belobog(), CARD().chernobog(),
+            CARD().moranaSpring(), CARD().moranaWinter(), CARD().zlata_maja()];
         if (Math.random() > 0.5) {
-            SOCKET_LIST[party.secondPlayer.id].emit('startGameBoard', { game: party, startTxt: 'Zaczynasz', start: true, ownHP: party.secondPlayer.hp, enemyHP: party.firstPlayer.hp });
+            SOCKET_LIST[party.secondPlayer.id].emit('startGameBoard', { game: party, startTxt: 'Zaczynasz', start: true, ownHP: party.board.ownHP, enemyHP: party.board.enemyHP });
             SOCKET_LIST[party.secondPlayer.controller.controllerID].emit('startGameController', { game: party, deck: deck, start: true });
-            SOCKET_LIST[party.firstPlayer.id].emit('startGameBoard', { game: party, startTxt: 'Rozpoczyna przeciwnik', start: false, ownHP: party.firstPlayer.hp, enemyHP: party.secondPlayer.hp});
+            SOCKET_LIST[party.firstPlayer.id].emit('startGameBoard', { game: party, startTxt: 'Rozpoczyna przeciwnik', start: false, ownHP: party.board.ownHP, enemyHP: party.board.enemyHP});
             SOCKET_LIST[party.firstPlayer.controller.controllerID].emit('startGameController', { game: party, deck: deck, start: false });
         }
         else {
-            SOCKET_LIST[party.firstPlayer.id].emit('startGameBoard', { game: party, startTxt: 'Zaczynasz', start: true, ownHP: party.firstPlayer.hp, enemyHP: party.secondPlayer.hp });
+            SOCKET_LIST[party.firstPlayer.id].emit('startGameBoard', { game: party, startTxt: 'Zaczynasz', start: true, ownHP: party.board.ownHP, enemyHP: party.board.enemyHP });
             SOCKET_LIST[party.firstPlayer.controller.controllerID].emit('startGameController', { game: party, deck: deck, start: true });
-            SOCKET_LIST[party.secondPlayer.id].emit('startGameBoard', { game: party, startTxt: 'Rozpoczyna przeciwnik', start: false, ownHP: party.secondPlayer.hp, enemyHP: party.firstPlayer.hp });
+            SOCKET_LIST[party.secondPlayer.id].emit('startGameBoard', { game: party, startTxt: 'Rozpoczyna przeciwnik', start: false, ownHP: party.board.ownHP, enemyHP: party.board.enemyHP });
             SOCKET_LIST[party.secondPlayer.controller.controllerID].emit('startGameController', { game: party, deck: deck, start: false });
         }
 
@@ -139,7 +146,6 @@ var CARD = function () {
 
     var card = {
         Name: null,
-        Cost: null,
         DmgValue: null,
         DefValue: null,
         Text: null,
@@ -150,24 +156,67 @@ var CARD = function () {
         createdBy: null
     }
 
+    card.findObject = function (objName) {
+        switch (parseInt(objName))
+        {
+            case 1:
+                return card.Cholera();
+
+            case 2:
+                return card.Mermaind();
+
+            case 3:
+                return card.Twilight_rider();
+
+            case 4:
+                return card.belobog();
+
+            case 5:
+                return card.chernobog();
+
+            case 6:
+                return card.domovoi();
+
+            case 7:
+                return card.hybrid();
+
+            case 8:
+                return card.moranaSpring();
+
+            case 9:
+                return card.moranaWinter();
+
+            case 10:
+                return card.volkolak();
+
+            case 11:
+                return card.vuzhalka();
+
+            case 12:
+                return card.zlata_maja();
+
+            case 13:
+                return card.zmey_gorynych();
+        }
+    }
+
     card.Cholera = function () {
+        card.ID = 1;
         card.Name = 'Cholera';
-        card.Cost = 3;
         card.DmgValue = 2;
         card.DefValue = 8;
         card.Text = 'Os³ab jednostkê o 1 co turê';
         card.isSpy = cardType.Spy;
         card.Image = 'client/img/cholera.jpg';
         card.Ability = null;
-        card.Function = '';
         card.createdBy = 'https://vasylina.deviantart.com/';
 
         return card;
     }
 
     card.Mermaind = function () {
+        card.ID = 2;
         card.Name = 'Syrena';
-        card.Cost = 5;
         card.DmgValue = 4;
         card.DefValue = 5;
         card.Text = 'Przenieœ jedn¹ jednostkê na swoj¹ stronê';
@@ -179,9 +228,9 @@ var CARD = function () {
         return card;
     }
 
-    card.twilight_rider = function () {
+    card.Twilight_rider = function () {
+        card.ID = 3;
         card.Name = 'Ksiê¿ycowy jeŸdziec';
-        card.Cost = 2;
         card.DmgValue = 6;
         card.DefValue = 3;
         card.Text = 'Zablokuj umiejêtnoœæ jednej jednostki';
@@ -191,17 +240,148 @@ var CARD = function () {
         card.createdBy = 'https://vasylina.deviantart.com/';
 
         return card;
+    }    
+
+    card.belobog = function () {
+        card.ID = 4;
+        card.Name = 'Belobog';
+        card.DmgValue = 2;
+        card.DefValue = 7;
+        card.Text = '';
+        card.isSpy = cardType.NoSpy;
+        card.Image = 'client/img/belobog.jpg';
+        card.Ability = null;
+        card.createdBy = 'https://vasylina.deviantart.com/';
+
+        return card;
+    }    
+
+    card.chernobog = function () {
+        card.ID = 5;
+        card.Name = 'Chernobog';
+        card.DmgValue = 7;
+        card.DefValue = 2;
+        card.Text = 'Zablokuj umiejêtnoœæ jednej jednostki';
+        card.isSpy = cardType.NoSpy;
+        card.Image = 'client/img/chernobog.jpg';
+        card.Ability = null;
+        card.createdBy = 'https://vasylina.deviantart.com/';
+
+        return card;
+    }    
+
+    card.domovoi = function () {
+        card.ID = 6;
+        card.Name = 'Domovov';
+        card.DmgValue = 4;
+        card.DefValue = 4;
+        card.Text = 'Zablokuj umiejêtnoœæ jednej jednostki';
+        card.isSpy = cardType.NoSpy;
+        card.Image = 'client/img/domovoi.jpg';
+        card.Ability = null;
+        card.createdBy = 'https://vasylina.deviantart.com/';
+
+        return card;
+    }    
+
+    card.hybrid = function () {
+        card.ID = 7;
+        card.Name = 'Hybrid';
+        card.DmgValue = 4;
+        card.DefValue = 4;
+        card.Text = 'Zablokuj umiejêtnoœæ jednej jednostki';
+        card.isSpy = cardType.NoSpy;
+        card.Image = 'client/img/hybrid.jpg';
+        card.Ability = null;
+        card.createdBy = 'https://vasylina.deviantart.com/';
+
+        return card;
+    }  
+
+    card.moranaSpring = function () {
+        card.ID = 8;
+        card.Name = 'Morana: Wiosna';
+        card.DmgValue = 4;
+        card.DefValue = 4;
+        card.Text = 'Zablokuj umiejêtnoœæ jednej jednostki';
+        card.isSpy = cardType.NoSpy;
+        card.Image = 'client/img/moranaSpring.jpg';
+        card.Ability = null;
+        card.createdBy = 'https://vasylina.deviantart.com/';
+
+        return card;
+    }  
+
+    card.moranaWinter = function () {
+        card.ID = 9;
+        card.Name = 'Morana: Zima';
+        card.DmgValue = 4;
+        card.DefValue = 4;
+        card.Text = 'Zablokuj umiejêtnoœæ jednej jednostki';
+        card.isSpy = cardType.NoSpy;
+        card.Image = 'client/img/moranaWinter.jpg';
+        card.Ability = null;
+        card.createdBy = 'https://vasylina.deviantart.com/';
+
+        return card;
+    }  
+
+    card.volkolak = function () {
+        card.ID = 10;
+        card.Name = 'Wi³ko³ak';
+        card.DmgValue = 4;
+        card.DefValue = 4;
+        card.Text = 'Zablokuj umiejêtnoœæ jednej jednostki';
+        card.isSpy = cardType.NoSpy;
+        card.Image = 'client/img/volkolak.jpg';
+        card.Ability = null;
+        card.createdBy = 'https://vasylina.deviantart.com/';
+
+        return card;
+    }  
+
+
+    card.vuzhalka = function () {
+        card.ID = 11;
+        card.Name = 'Vuzhalka';
+        card.DmgValue = 4;
+        card.DefValue = 4;
+        card.Text = 'Zablokuj umiejêtnoœæ jednej jednostki';
+        card.isSpy = cardType.NoSpy;
+        card.Image = 'client/img/vuzhalka.jpg';
+        card.Ability = null;
+        card.createdBy = 'https://vasylina.deviantart.com/';
+
+        return card;
+    }  
+
+    card.zlata_maja = function () {
+        card.ID = 12;
+        card.Name = 'zlata_maja';
+        card.DmgValue = 4;
+        card.DefValue = 4;
+        card.Text = 'Zablokuj umiejêtnoœæ jednej jednostki';
+        card.isSpy = cardType.NoSpy;
+        card.Image = 'client/img/zlata_maja.jpg';
+        card.Ability = null;
+        card.createdBy = 'https://vasylina.deviantart.com/';
+
+        return card;
+    }  
+
+    card.zmey_gorynych = function () {
+        card.ID = 13;
+        card.Name = 'zmey_gorynych';
+        card.DmgValue = 4;
+        card.DefValue = 4;
+        card.Text = 'Zablokuj umiejêtnoœæ jednej jednostki';
+        card.isSpy = cardType.NoSpy;
+        card.Image = 'client/img/zmey_gorynych.jpg';
+        card.Ability = null;
+        card.createdBy = 'https://vasylina.deviantart.com/';
+
+        return card;
     }
-
-    card.getDeck = function () {
-        var deck = [];
-        deck.push(card.Cholera());
-        deck.push(card.Mermaind());
-        deck.push(card.twilight_rider());
-
-        return deck;
-    }
-
     return card;
 }
 
@@ -270,6 +450,8 @@ io.sockets.on('connection', function (socket) {
             if (HostGames_LIST[i] !== 'undefined' && HostGames_LIST[i].id === data.ID) {
                 HostGames_LIST[i].addSecondPlayer(PLAYER_LIST[socket.id]);
                 PLAYER_LIST[socket.id].setHost(HostGames_LIST[i].id);
+                BOARDS_LIST[socket.id] = BOARD(socket.id);
+                HostGames_LIST[i].addBoard(BOARDS_LIST[socket.id]);
                 HostGames_LIST[i].startGame();
                 break;
             }
@@ -324,12 +506,14 @@ io.sockets.on('connection', function (socket) {
     //Board
     socket.on('addCardToBoard', function (card) {
         var host = HostGames_LIST[PLAYER_LIST[CONTROLERS_LIST[socket.id].userID].host];
-        var board = BOARD(host.id);
-        board.addCard(card.card, host.firstPlayer.controllerID == socket.id ? host.firstPlayer.id : host.secondPlayer.id, card.position);
-        BOARDS_LIST[host.id] = board;
+        var board = BOARDS_LIST[host.board.host];
+        board.addCard(card.card, host.firstPlayer.controller.controllerID == socket.id ? host.firstPlayer.id : host.secondPlayer.id, card.position);
+        BOARDS_LIST[host.firstPlayer.id] = board;
+
         if (host !== 'undefined') {
             SOCKET_LIST[host.firstPlayer.id].emit('createBoard', { board: board });
             SOCKET_LIST[host.secondPlayer.id].emit('createBoard', { board: board });
+            calculatePoints(host);
             changeTurn(host, true);
         }
 
@@ -337,8 +521,11 @@ io.sockets.on('connection', function (socket) {
 
     //Timer
     socket.on('timer', function () {
-        var host = HostGames_LIST[PLAYER_LIST[socket.id].host];
-        timer(11, host);
+        console.log(socket.id);
+        if (PLAYER_LIST[socket.id] !== 'undefined') {
+            var host = HostGames_LIST[PLAYER_LIST[socket.id].host];
+            timer(11, host);
+        }
     });
 
     function timer(i, host) {
@@ -355,7 +542,6 @@ io.sockets.on('connection', function (socket) {
     }
 
     function changeTurn(host, bolVal) {
-
         if (bolVal)
         {
             SOCKET_LIST[host.firstPlayer.id].emit('setTurn', { yourTurn: (host.firstPlayer.controller.controllerID == socket.id ? false : true) });
@@ -375,27 +561,29 @@ io.sockets.on('connection', function (socket) {
 
     function calculatePoints(host)
     { 
-        var board = BOARDS_LIST[host.id].table;
-        for (var i = 0; i < board.length; i++)
+        var board = BOARDS_LIST[host.id];
+        var enHP = 15;
+        var onHP = 15;
+        for (var i = 0; i < board.table.length; i++)
         {
-            if (board[i].owner == host.firstPlayer.id)
+            if (board.table[i].owner == host.firstPlayer.id)
             {
-                if (board[i].position == 'attack')
-                    board[i].enemyHP -= board[i].card.DmgValue;
+                if (board.table[i].position == 'attack')
+                    enHP = board.enemyHP - board.table[i].card.DmgValue;
                 else
-                    board[i].ownHP += board[i].card.DefValue;
+                    onHP = board.ownHP + board.table[i].card.DefValue;
             }
             else
             {
-                if (board[i].position == 'attack')
-                    board[i].ownHP -= board[i].card.DmgValue;
+                if (board.table[i].position == 'attack')
+                    onHP = board.ownHP - board.table[i].card.DmgValue;
                 else
-                    board[i].enemyHP += board[i].card.DefValue;
+                    enHP = board.enemyHP + board.table[i].card.DefValue;
             }
         }
         
-        SOCKET_LIST[host.firstPlayer.id].emit('calculatedPoints', { yourHP: (board[i].ownHP > 100 ? 100 : board[i].ownHP), enemyHP: (board[i].enemyHP > 100 ? 100 : board[i].enemyHP) });
-        SOCKET_LIST[host.secondPlayer.id].emit('calculatedPoints', { enemyHP: (board[i].ownHP > 100 ? 100 : board[i].ownHP), yourHP: (board[i].enemyHP > 100 ? 100 : board[i].enemyHP) });
+        SOCKET_LIST[host.firstPlayer.id].emit('calculatedPoints', { yourHP: (onHP > 15 ? 15 : board.ownHP), enemyHP: (enHP > 15 ? 15 : board.enemyHP) });
+        SOCKET_LIST[host.secondPlayer.id].emit('calculatedPoints', { enemyHP: (onHP > 15 ? 15 : board.ownHP), yourHP: (enHP > 15 ? 15 : board.enemyHP) });
     }
 
     socket.on('closeGame', function () {
