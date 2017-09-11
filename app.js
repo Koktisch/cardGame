@@ -582,8 +582,8 @@ io.sockets.on('connection', function (socket) {
             }
         }
         
-        SOCKET_LIST[host.firstPlayer.id].emit('calculatedPoints', { yourHP: (onHP > 15 ? 15 : board.ownHP), enemyHP: (enHP > 15 ? 15 : board.enemyHP) });
-        SOCKET_LIST[host.secondPlayer.id].emit('calculatedPoints', { enemyHP: (onHP > 15 ? 15 : board.ownHP), yourHP: (enHP > 15 ? 15 : board.enemyHP) });
+        SOCKET_LIST[host.firstPlayer.id].emit('calculatedPoints', { yourHP: (onHP > 15 ? board.ownHP : onHP), enemyHP: (enHP > 15 ? board.enemyHP : enHP) });
+        SOCKET_LIST[host.secondPlayer.id].emit('calculatedPoints', { enemyHP: (onHP > 15 ? board.ownHP : onHP), yourHP: (enHP > 15 ? board.enemyHP : enHP) });
     }
 
     socket.on('closeGame', function () {
