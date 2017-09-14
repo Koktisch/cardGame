@@ -474,7 +474,8 @@ io.sockets.on('connection', function (socket) {
             if (data.codeValue == CONTROLERS_LIST[i].syncCode) {
                 CONTROLERS_LIST[i].controllerID = socket.id;
                 CONTROLERS_LIST[socket.id] = CONTROLERS_LIST[i];
-                delete CONTROLERS_LIST[i];
+                if (Object.is(CONTROLERS_LIST[socket.id], CONTROLERS_LIST[i]))
+                    delete CONTROLERS_LIST[i];
                 result = true;
                 break;
             }
