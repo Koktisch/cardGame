@@ -47,7 +47,7 @@ socket.on('timer', function (time)
     }
 });
 
-socket.on('setTurn', function (turn) {
+socket.on('setTurn_Board', function (turn) {
     clearTimeout(stTimer);
     $('#priority').html((turn.yourTurn == true ? 'Twój ruch' : 'Ruch przeciwnika'));
     stTimer = setTimeout(function () {

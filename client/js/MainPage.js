@@ -11,7 +11,7 @@ socket.on('message', function (msg) {
 
 getLobbysFromServer();
 
-socket.on('addControlerResualt', function (data) {
+socket.on('addControlerResualt_MP', function (data) {
     $('#controllerCode').css('display', 'none');
 });
 

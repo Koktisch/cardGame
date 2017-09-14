@@ -479,8 +479,13 @@ io.sockets.on('connection', function (socket) {
                 break;
             }
         }
-        SOCKET_LIST[CONTROLERS_LIST[socket.id].userID].emit('addControlerResualt', result);
-        SOCKET_LIST[socket.id].emit('addControlerResualt', result);
+        if (result) {
+            SOCKET_LIST[CONTROLERS_LIST[socket.id].userID].emit('addControlerResualt_MP', result);
+            SOCKET_LIST[socket.id].emit('addControlerResualt_CN', result);
+        }
+        else {
+            SOCKET_LIST[socket.id].emit('addControlerResualt_CN', result);
+        }
     });
 
     //Password
@@ -544,17 +549,17 @@ io.sockets.on('connection', function (socket) {
     function changeTurn(host, bolVal) {
         if (bolVal)
         {
-            SOCKET_LIST[host.firstPlayer.id].emit('setTurn', { yourTurn: (host.firstPlayer.controller.controllerID == socket.id ? false : true) });
-            SOCKET_LIST[host.secondPlayer.id].emit('setTurn', { yourTurn: (host.secondPlayer.controller.controllerID == socket.id ? false : true) });
-            SOCKET_LIST[host.firstPlayer.controller.controllerID].emit('setTurn', { yourTurn: (host.firstPlayer.controller.controllerID == socket.id ? false : true) });
-            SOCKET_LIST[host.secondPlayer.controller.controllerID].emit('setTurn', { yourTurn: (host.secondPlayer.controller.controllerID == socket.id ? false : true) });       
+            SOCKET_LIST[host.firstPlayer.id].emit('setTurn_Board', { yourTurn: (host.firstPlayer.controller.controllerID == socket.id ? false : true) });
+            SOCKET_LIST[host.secondPlayer.id].emit('setTurn_Board', { yourTurn: (host.secondPlayer.controller.controllerID == socket.id ? false : true) });
+            SOCKET_LIST[host.firstPlayer.controller.controllerID].emit('setTurn_Controller', { yourTurn: (host.firstPlayer.controller.controllerID == socket.id ? false : true) });
+            SOCKET_LIST[host.secondPlayer.controller.controllerID].emit('setTurn_Controller', { yourTurn: (host.secondPlayer.controller.controllerID == socket.id ? false : true) });       
         }
         else
         {
-            SOCKET_LIST[host.firstPlayer.id].emit('setTurn', { yourTurn: (host.firstPlayer.id == socket.id ? false : true) });
-            SOCKET_LIST[host.secondPlayer.id].emit('setTurn', { yourTurn: (host.secondPlayer.id == socket.id ? false : true) });
-            SOCKET_LIST[host.firstPlayer.controller.controllerID].emit('setTurn', { yourTurn: (host.firstPlayer.id == socket.id ? false : true) });
-            SOCKET_LIST[host.secondPlayer.controller.controllerID].emit('setTurn', { yourTurn: (host.secondPlayer.id == socket.id ? false : true) });
+            SOCKET_LIST[host.firstPlayer.id].emit('setTurn_Board', { yourTurn: (host.firstPlayer.id == socket.id ? false : true) });
+            SOCKET_LIST[host.secondPlayer.id].emit('setTurn_Board', { yourTurn: (host.secondPlayer.id == socket.id ? false : true) });
+            SOCKET_LIST[host.firstPlayer.controller.controllerID].emit('setTurn_Controller', { yourTurn: (host.firstPlayer.id == socket.id ? false : true) });
+            SOCKET_LIST[host.secondPlayer.controller.controllerID].emit('setTurn_Controller', { yourTurn: (host.secondPlayer.id == socket.id ? false : true) });
         }
     }
 

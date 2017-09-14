@@ -16,11 +16,10 @@ socket.on('startGameController', function (data) {
 
 function addControler() {
     socket.emit('addControler', {
-        codeValue: $('#controlerCode').val(),
-        socketID: localStorage.getItem('socketID')
+        codeValue: $('#controlerCode').val()
     });
 
-    socket.on('addControlerResualt', function (data) {
+    socket.on('addControlerResualt_CN', function (data) {
         if (data === true) {
             $('#waiting').css('display', 'block');
             $('#connectController').css('display', 'none');
@@ -77,7 +76,7 @@ function setInPos(position)
 }
 
 
-socket.on('setTurn', function (turn) {
+socket.on('setTurn_Controller', function (turn) {
     if (turn.yourTurn)
     {
         $('.blockBox').css('display', 'none');
