@@ -1,5 +1,3 @@
-var stTimer;
-
 socket.on('startGameBoard', function (startGameData) {
     $('#board').css('display', 'block');
     $('#priority').html(startGameData.startTxt);
@@ -7,9 +5,7 @@ socket.on('startGameBoard', function (startGameData) {
     $('#enehp').html(startGameData.enemyHP);
     $('#priority').css('display', 'block');
     if (startGameData.start) {
-        stTimer = setTimeout(function () {
-           socket.emit('timer');
-        }, 80000);        
+           socket.emit('timer');  
     }
 });
 
@@ -34,6 +30,15 @@ socket.on('createBoard', function (board) {
     }
 });
 
+socket.on('enemyDisconectedBoard', function () {
+    if (stTimer !== undefined)
+        stTimer.clearTimeout();
+    $('#error').val('Utracono po³¹czenie z przeciwnikiem');
+    $('#playerBoard').empty();
+    $('#enemyPlayerBoard').empty();
+    $('#board').css('display', 'none');
+});
+
 socket.on('timer', function (time)
 {
     $('#timer').html(time.time);
@@ -43,16 +48,11 @@ socket.on('timer', function (time)
     if (time.changeTurn)
     {   
         $('#timer').css('disply', 'none');
-        socket.emit('changeTurn');
     }
 });
 
-socket.on('setTurn_Board', function (turn) {
-    clearTimeout(stTimer);
+socket.on('setTurn_Board', function (turn) {    
     $('#priority').html((turn.yourTurn == true ? 'Twój ruch' : 'Ruch przeciwnika'));
-    stTimer = setTimeout(function () {
-        socket.emit('timer');
-    }, 80000); 
 });
 
 

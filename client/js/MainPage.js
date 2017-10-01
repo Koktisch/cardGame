@@ -15,6 +15,32 @@ socket.on('addControlerResualt_MP', function (data) {
     $('#controllerCode').css('display', 'none');
 });
 
+function pageStarted()
+{
+    setDivs();
+    getLobbysFromServer();
+    
+}
+getUsers();
+function getUsers()
+{
+    socket.emit('getUsers');
+    socket.on('userList', function (data) {
+        let playerBox = $('#playersOnPage');
+        if (playerBox[0].firstChild) {
+            while (playerBox[0].firstChild) {
+                playerBox[0].removeChild(playerBox[0].firstChild);
+            }
+        }
+        for (var player in data) {
+            let div = document.createElement("a");    
+            div.classList.add('playerList');
+            div.innerHTML = data[player].userName;
+            playerBox[0].appendChild(div);
+        }
+    });
+}
+
 function setDivs()
 {
     if (phoneModels.test(navigator.userAgent)) {
@@ -65,18 +91,23 @@ function getLobbysFromServer() {
 }
 
 function addPlayer() {
-    socket.emit('addPlayer', {
-        userName: document.getElementById('userName').value
-    });
-
+    if ($('#userName').val()) {
+        socket.emit('addPlayer', {
+            userName: $('#userName').val()
+        });
+    }
+    else
+    {
+        $('#errorPc').val('Nazwij siê :)')
+    }
     socket.on('addPlayerResult', function (data) {
         if (data === false) {
             $('#logBox').css('display', 'none');
-            $('.blockBox').css('display', 'none');
             getControllerCode();
+            getUsers();
         }
         else {
-            alert('Nazwa ju¿ istnieje. Wybierz inn¹.');
+            alert('Nazwa jest ju¿ u¿ywana. Wybierz inn¹.');
         }
     });
 }
@@ -118,7 +149,7 @@ function getControllerCode() {
     socket.emit('getControllerCode', {});
 
     socket.on('getControllerCodeRes', function (code) {
-        $('#aForCode').html(code);
+        $('#code').html(code);
         $('#controllerCode').css('display', 'block');
     });
 }

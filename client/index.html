@@ -6,8 +6,11 @@
     <title></title>
     <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script> 
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <link rel="stylesheet" href="client/css/mainStyle.css" />
     <link rel="stylesheet" href="client/css/controler.css" />
+    <link rel="stylesheet" href="client/css/board.css" />
+    <link rel="stylesheet" href="client/css/boxes.css" />
     <script>
         var partyStatusEnum = Object.freeze({ "public": 0, "private": 1, "full": 2 })
 
@@ -23,42 +26,51 @@
     <script type="text/javascript" src="client/js/Controller.js"></script>
     <script type="text/javascript" src="client/js/MainPage.js"></script>
 </head>
-<body onload="setDivs(); getLobbysFromServer()">
-    <div id="pc">    
+<body onload="pageStarted()">
+    <div id="pc" class="container-fluid">
         <div class="blockBox"></div>
-        <div id="logAbs">
-            <div id="logBox">
-                <a>Username</a><input type="text" id="userName" />
-                <button onclick="addPlayer()">Zaloguj się</button>
-            </div>
+        <div id="logBox">
+            <a class="error logBoxClass" id="errorPc"></a>
+            <a class="logBoxClass">Username</a><input class="logBoxClass" type="text" id="userName" />
+            <button id="addPlayer" class="logBoxClass" onclick="addPlayer()">Wejdź do gry</button>
         </div>
-        <div id="socialBox">
-            <div id="hostBox">
-                <select id="partyStatus" onchange="$('#password').toggle();">
-                    <option>Public</option>
-                    <option>Private</option>
-                </select>
-                <a>Hasło</a><input type="password" id="password" hidden />
-                <button onclick="hostGame()">Stwórz pokój</button>
-            </div>
-            <div id="chat">
-                <ul id="messages"></ul>
-                <div id="msgControls">
-                    <input id="txtInp" autocomplete="off" /><button onclick="sendMsg()">Send</button>
+        <div class="row" style="height: 100%">
+            <div id="socialBox" class="col-sm-3">
+                <div id="hostBox">
+                    <select id="partyStatus" class="dropdown-menu" onchange="$('#password').toggle();">
+                        <option>Public</option>
+                        <option>Private</option>
+                    </select>
+                    <a>Hasło</a><input type="password" id="password" hidden />
+                    <button type="button" id="hostGameButton" class="btn btn-primary btn-md btn-block" onclick="hostGame()">Stwórz pokój</button>
+                </div>
+                <div id="chat">
+                    <ul id="messages"></ul>
+                    <div id="msgControls">
+                        <input id="txtInp" autocomplete="off" /><button onclick="sendMsg()">Send</button>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div id="gamesBox">
+            <div id="gamesBox" class="col-sm-7">
 
-        </div>
-        <!--Divy z position absolute-->
-        <div id="passBox">
-            Wprowadź hasło: <input id="pass-input" type="password" />
-            <button id="btnPass" onclick="checkPassword()">Enter</button>
-        </div>
-        <div id="controllerCode">
-            Wejdź wejdź na telefonie tutaj i wpisz poniższy kod.
-            <a id="aForCode"></a>
+            </div>
+
+            <div id="playersOnPage" class="col-sm-2">
+
+            </div>
+            <!--Divy z position absolute-->
+            <div id="passBox">
+                Wprowadź hasło: <input id="pass-input" type="password" />
+                <button id="btnPass" onclick="checkPassword()">Enter</button>
+            </div>
+            <div id="controllerCode">
+                Wejdź wejdź na telefonie tutaj i wpisz poniższy kod.
+                <a id="code"></a>
+            </div>
+
+            <div class="error" id="error">
+
+            </div>
         </div>
     </div>
 
@@ -67,13 +79,13 @@
             <div id="waiting">
                 Czekam na rozpoczęcie gry.
             </div>  
-            <p id="opponentMove">Ruch przeciwnika</p>
+            <div id="opponentMove">Ruch przeciwnika</div>            
         </div>
         <div id="connectController">
             Wpisz kod by połączyć go z kontrolerem
             <a>Kod: </a><input type="text" id="controlerCode" />
             <button onclick="addControler()">Połącz kontrtoler</button>
-            <a id="error"></a>
+            <a class="error" id="errorCn"></a>
         </div>
         <div id="controlerBoard">           
         </div>      

@@ -6,6 +6,16 @@
     display: none;
 }
 
+.blockBox {
+    position: absolute;
+    z-index: 9000;
+    background-color: black;
+    opacity: 0.5;
+    width: 100%;
+    height: 100%;
+    display: none;
+}
+
 .card {
     width: 200px;
     height: 280px;
@@ -29,22 +39,6 @@
     width: 100px;
     height: 100px;
     background-color: white;
-}
-
-#error {
-    color: red;
-}
-
-#dropPlace {
-    width: 100%;
-    height: 20%;
-    display: none;
-}
-
-.dropPlace {
-    width: 14.2%;
-    height: 100%;
-    float: left;
 }
 
 img {

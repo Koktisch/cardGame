@@ -1,0 +1,34 @@
+﻿#hostBox {
+    width: 100%;
+    height: 40%;
+    background-color: red;
+    position: relative;
+}
+#board {
+    display: none; 
+    position: absolute;
+    z-index: 20000;
+    width: 96%;
+    height: 96%;
+    top: 2%;
+    left: 2%;
+    background-color: pink;
+}
+#priority {
+    width: 100%;
+    height: 4%;
+}
+#enemyPlayerBoard {
+    width: 100%;
+    height: 48%;
+}
+#playerBoard {
+    width: 100%;
+    height: 48%;
+}
+#lose{
+    display:none;
+}
+#win {
+    display: none;
+}

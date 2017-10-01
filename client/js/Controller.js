@@ -25,7 +25,7 @@ function addControler() {
             $('#connectController').css('display', 'none');
         }
         else {
-            $('#error').html('B³¹d po³¹czenia kontrolera!');
+            $('#errorCn').html('B³¹d po³¹czenia kontrolera!');
         }
     });
 }
@@ -96,4 +96,18 @@ function closeBoard()
     $('#closeGame').css('display', 'block');
     socket.emit('closeGame', {});
 }
+
+socket.on('enemyDisconectedController', function (obj) {
+    if (obj.val) {
+        $('#controlerBoard').empty();
+        $('#controlerBoard').css('display', 'none');
+        $('#waiting').css('display', 'block');        
+        $('.blockBox').css('display', 'block');
+    }
+    else
+    {
+        window.open('', '_parent', '');
+        window.close();
+    }
+});
 
