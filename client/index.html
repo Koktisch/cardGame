@@ -34,28 +34,31 @@
             <a class="logBoxClass">Username</a><input class="logBoxClass" type="text" id="userName" />
             <button id="addPlayer" class="logBoxClass" onclick="addPlayer()">Wejdź do gry</button>
         </div>
-        <div class="row" style="height: 100%">
+        <div class="row" style="height: 100%;margin-left: 0px;margin-right: 0px;">
             <div id="socialBox" class="col-sm-3">
                 <div id="hostBox">
-                    <select id="partyStatus" class="dropdown-menu" onchange="$('#password').toggle();">
-                        <option>Public</option>
-                        <option>Private</option>
-                    </select>
-                    <a>Hasło</a><input type="password" id="password" hidden />
-                    <button type="button" id="hostGameButton" class="btn btn-primary btn-md btn-block" onclick="hostGame()">Stwórz pokój</button>
+                    <div style="float:left; width:100%; height:100%;">
+                        <input id="hostName" placeholder="Nazwa pokoju"/>
+                        <select id="partyStatus" class="dropdown-menu" onchange="$('#password').toggle();">
+                            <option>Public</option>
+                            <option>Private</option>
+                        </select>
+                        <input class="password" id="password" placeholder="Hasło" hidden />
+                    </div>
+                    <button type="button" id="hostGameButton" class="btn btn-primary btn-md btn-block" onclick="hostGame()">Stwórz pokój</button>                    
                 </div>
                 <div id="chat">
                     <ul id="messages"></ul>
                     <div id="msgControls">
-                        <input id="txtInp" autocomplete="off" /><button onclick="sendMsg()">Send</button>
+                        <input id="txtInp" autocomplete="off" /><button id="btnTxtSend" onclick="sendMsg()"><span class="glyphicon glyphicon-comment" aria-hidden="true"></span> Wyślij</button>
                     </div>
                 </div>
             </div>
-            <div id="gamesBox" class="col-sm-7">
+            <div id="gamesBox" class="col-sm-8">
 
             </div>
 
-            <div id="playersOnPage" class="col-sm-2">
+            <div id="playersOnPage" class="col-sm-1">
 
             </div>
             <!--Divy z position absolute-->
@@ -64,7 +67,7 @@
                 <button id="btnPass" onclick="checkPassword()">Enter</button>
             </div>
             <div id="controllerCode">
-                Wejdź wejdź na telefonie tutaj i wpisz poniższy kod.
+                Wejdź na telefonie tutaj i wpisz poniższy kod:
                 <a id="code"></a>
             </div>
 
@@ -83,8 +86,8 @@
         </div>
         <div id="connectController">
             Wpisz kod by połączyć go z kontrolerem
-            <a>Kod: </a><input type="text" id="controlerCode" />
-            <button onclick="addControler()">Połącz kontrtoler</button>
+            <input type="text" id="controlerCode" />
+            <button id="connectBtn" onclick="addControler()">Połącz kontrtoler</button>
             <a class="error" id="errorCn"></a>
         </div>
         <div id="controlerBoard">           

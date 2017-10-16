@@ -1,4 +1,3 @@
-
 function sendMsg() {
     socket.emit('message', $('#txtInp').val());
     $('#txtInp').val('');
@@ -33,7 +32,7 @@ function getUsers()
             }
         }
         for (var player in data) {
-            let div = document.createElement("a");    
+            let div = document.createElement("p");    
             div.classList.add('playerList');
             div.innerHTML = data[player].userName;
             playerBox[0].appendChild(div);
@@ -82,7 +81,10 @@ function getLobbysFromServer() {
 
                 div.classList.add('gameDiv');
                 div.id = data[gameNum].partyStatus + '?' + data[gameNum].id;
-                div.innerHTML = 'Gra u¿ytkownika: ' + data[gameNum].firstPlayer.userName;
+                if (data[gameNum].roomName != '')
+                    div.innerHTML = data[gameNum].roomName;
+                else
+                    div.innerHTML = 'Gra u¿ytkownika: ' + data[gameNum].firstPlayer.userName;
                 div.appendChild(btn);
                 document.getElementById("gamesBox").appendChild(div);
             }
@@ -114,6 +116,7 @@ function addPlayer() {
 
 function hostGame() {
     socket.emit('hostGame', {
+        hostName: $('#hostName').val(),
         partyStatus: document.getElementById('partyStatus').selectedIndex,
         password: document.getElementById('password').value
     });

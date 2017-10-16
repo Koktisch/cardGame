@@ -133,6 +133,7 @@ var CONTROLLER = function (socketID)
 var HOST = function (id, player, data) {
     var party = {
         id: id,
+        roomName: data.hostName,
         firstPlayer: player,
         secondPlayer: null,
         board: null,
