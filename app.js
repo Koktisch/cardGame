@@ -487,24 +487,55 @@ io.sockets.on('connection', function (socket) {
     function removeGame() {
         if (PLAYER_LIST[socket.id] !== undefined && HostGames_LIST[PLAYER_LIST[socket.id].host] !== undefined)
         {
-            if (HostGames_LIST[PLAYER_LIST[socket.id].host].firstPlayer.id === socket.id
-                || HostGames_LIST[PLAYER_LIST[socket.id].host].firstPlayer.controller.controllerID === socket.id)
+            if (HostGames_LIST[PLAYER_LIST[socket.id].host].firstPlayer.id === socket.id)
             {
                 HostGames_LIST[PLAYER_LIST[socket.id].host].clearTimer();
-                SOCKET_LIST[HostGames_LIST[PLAYER_LIST[socket.id].host].secondPlayer.id].emit('enemyDisconectedBoard', {});                
-                SOCKET_LIST[HostGames_LIST[PLAYER_LIST[socket.id].host].secondPlayer.controller.controllerID].emit('enemyDisconectedController', { val: true});
-                SOCKET_LIST[HostGames_LIST[PLAYER_LIST[socket.id].host].firstPlayer.controller.controllerID].emit('enemyDisconectedController', { val: false});
+                if (HostGames_LIST[PLAYER_LIST[socket.id].host].secondPlayer != null)
+                {
+                    SOCKET_LIST[HostGames_LIST[PLAYER_LIST[socket.id].host].secondPlayer.id].emit('enemyDisconectedBoard', {});
+                    SOCKET_LIST[HostGames_LIST[PLAYER_LIST[socket.id].host].secondPlayer.controller.controllerID].emit('enemyDisconectedController', { val: true });
+                }
+                if (SOCKET_LIST[HostGames_LIST[PLAYER_LIST[socket.id].host].firstPlayer.controller.controllerID] != null)
+                    SOCKET_LIST[HostGames_LIST[PLAYER_LIST[socket.id].host].firstPlayer.controller.controllerID].emit('enemyDisconectedController', { val: false });
                 delete CONTROLERS_LIST[HostGames_LIST[PLAYER_LIST[socket.id].host].firstPlayer.controller.controllerID];
                 delete HostGames_LIST[PLAYER_LIST[socket.id].host];
                
             }
             else {
                 HostGames_LIST[PLAYER_LIST[socket.id].host].clearTimer();
-                SOCKET_LIST[HostGames_LIST[PLAYER_LIST[socket.id].host].firstPlayer.id].emit('enemyDisconectedBoard', {}); 
-                SOCKET_LIST[HostGames_LIST[PLAYER_LIST[socket.id].host].firstPlayer.controller.controllerID].emit('enemyDisconectedController', {val: true});
-                SOCKET_LIST[HostGames_LIST[PLAYER_LIST[socket.id].host].secondPlayer.controller.controllerID].emit('enemyDisconectedController', { val: false});
+                if (HostGames_LIST[PLAYER_LIST[socket.id].host].firstPlayer != null) {
+                    SOCKET_LIST[HostGames_LIST[PLAYER_LIST[socket.id].host].firstPlayer.id].emit('enemyDisconectedBoard', {});
+                    SOCKET_LIST[HostGames_LIST[PLAYER_LIST[socket.id].host].firstPlayer.controller.controllerID].emit('enemyDisconectedController', { val: true });
+                }
+                SOCKET_LIST[HostGames_LIST[PLAYER_LIST[socket.id].host].secondPlayer.controller.controllerID].emit('enemyDisconectedController', { val: false });
                 delete CONTROLERS_LIST[HostGames_LIST[PLAYER_LIST[socket.id].host].secondPlayer.controller.controllerID];
                 delete HostGames_LIST[PLAYER_LIST[socket.id].host];
+            }
+
+            if (HostGames_LIST[PLAYER_LIST[socket.id].host] != undefined) {
+                if (HostGames_LIST[PLAYER_LIST[socket.id].host].firstPlayer.controller.controllerID === socket.id) {
+                    HostGames_LIST[PLAYER_LIST[socket.id].host].clearTimer();
+                    if (HostGames_LIST[PLAYER_LIST[socket.id].host].secondPlayer.id != null) {
+                        SOCKET_LIST[HostGames_LIST[PLAYER_LIST[socket.id].host].secondPlayer.id].emit('enemyDisconectedBoard', {});
+                        SOCKET_LIST[HostGames_LIST[PLAYER_LIST[socket.id].host].secondPlayer.controller.controllerID].emit('enemyDisconectedController', { val: true });
+                    }
+                    SOCKET_LIST[HostGames_LIST[PLAYER_LIST[socket.id].host].firstPlayer.id].emit('enemyDisconectedBoard', {});
+                    //todo przekazanie roz³aczenia kontrolera
+                    delete CONTROLERS_LIST[HostGames_LIST[PLAYER_LIST[socket.id].host].firstPlayer.controller.controllerID];
+                    delete HostGames_LIST[PLAYER_LIST[socket.id].host];
+
+                }
+                else {
+                    HostGames_LIST[PLAYER_LIST[socket.id].host].clearTimer();
+                    if (HostGames_LIST[PLAYER_LIST[socket.id].host].firstPlayer.id != null) {
+                        SOCKET_LIST[HostGames_LIST[PLAYER_LIST[socket.id].host].firstPlayer.id].emit('enemyDisconectedBoard', {});
+                        SOCKET_LIST[HostGames_LIST[PLAYER_LIST[socket.id].host].firstPlayer.controller.controllerID].emit('enemyDisconectedController', { val: true });
+                    }
+                    SOCKET_LIST[HostGames_LIST[PLAYER_LIST[socket.id].host].secondPlayer.id].emit('enemyDisconectedBoard', {});
+                    //todo przekazanie roz³aczenia kontrolera
+                    delete CONTROLERS_LIST[HostGames_LIST[PLAYER_LIST[socket.id].host].secondPlayer.controller.controllerID];
+                    delete HostGames_LIST[PLAYER_LIST[socket.id].host];
+                }
             }
         }
     };
@@ -547,10 +578,12 @@ io.sockets.on('connection', function (socket) {
         for (var i in HostGames_LIST) {
             if (HostGames_LIST[i] !== 'undefined' && HostGames_LIST[i].id === data.ID) {
                 HostGames_LIST[i].addSecondPlayer(PLAYER_LIST[socket.id]);
+                HostGames_LIST[i].partyStatus = 2;
                 PLAYER_LIST[socket.id].setHost(HostGames_LIST[i].id);
                 BOARDS_LIST[socket.id] = BOARD(socket.id);
                 HostGames_LIST[i].addBoard(BOARDS_LIST[socket.id]);
                 HostGames_LIST[i].startGame();
+                emitLobbys();
                 break;
             }
         }
@@ -603,9 +636,11 @@ io.sockets.on('connection', function (socket) {
     });
 
     //Chat
-    socket.on('message', function (msg) {
-        io.emit('message', PLAYER_LIST[socket.id].userName + ': ' + msg);
-    });
+    if (PLAYER_LIST[socket.id] != undefined) {
+        socket.on('message', function (msg) {
+            io.emit('message', PLAYER_LIST[socket.id].userName + ': ' + msg);
+        });
+    }
 
     //Board
     socket.on('addCardToBoard', function (card) {

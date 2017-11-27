@@ -1,8 +1,3 @@
-function sendMsg() {
-    socket.emit('message', $('#txtInp').val());
-    $('#txtInp').val('');
-}
-
 socket.on('message', function (msg) {
     $('#messages').append($('<li>').text(msg));
     $("html, body").scrollTop($(document).height());
@@ -66,27 +61,33 @@ function getLobbysFromServer() {
             }
             //wype³nianie game boxa
             for (var gameNum in data) {
-                let div = document.createElement("div");
-                let btn = document.createElement("button");
-                if (data[gameNum].id === socket.id) {
-                    btn.innerText = 'Wyjd¿ z pokoju';
-                    btn.id = 'btnForLinked'
-                    btn.onclick = function () { leaveLobby(); };
-                }
-                else {
-                    btn.innerText = 'Do³¹cz go gry';
-                    btn.onclick = function () { joinLobby(this); };
-                }
-                btn.id = data[gameNum].id;
+                if (data[gameNum].partyStatus != 2)
+                {
+                    let div = document.createElement("div");
+                    let btn = document.createElement("button");
+                    btn.classList.add("btn");
+                    btn.classList.add("btn-default");
+                    btn.style = "height: 100%;float: right;";
+                    if (data[gameNum].id === socket.id) {
+                        btn.innerText = 'Wyjd¿';
+                        btn.id = 'btnForLinked'
+                        btn.onclick = function () { leaveLobby(); };
+                    }
+                    else {
+                        btn.innerText = 'Do³¹cz';
+                        btn.onclick = function () { joinLobby(this); };
+                    }
+                    btn.id = data[gameNum].id;
 
-                div.classList.add('gameDiv');
-                div.id = data[gameNum].partyStatus + '?' + data[gameNum].id;
-                if (data[gameNum].roomName != '')
-                    div.innerHTML = data[gameNum].roomName;
-                else
-                    div.innerHTML = 'Gra u¿ytkownika: ' + data[gameNum].firstPlayer.userName;
-                div.appendChild(btn);
-                document.getElementById("gamesBox").appendChild(div);
+                    div.classList.add('gameDiv');
+                    div.id = data[gameNum].partyStatus + '?' + data[gameNum].id;
+                    if (data[gameNum].roomName != '')
+                        div.innerHTML = data[gameNum].roomName;
+                    else
+                        div.innerHTML = 'Gra u¿ytkownika: ' + data[gameNum].firstPlayer.userName;
+                    div.appendChild(btn);
+                    document.getElementById("gamesBox").appendChild(div);
+                }
             }
         });
     }
@@ -115,11 +116,16 @@ function addPlayer() {
 }
 
 function hostGame() {
-    socket.emit('hostGame', {
-        hostName: $('#hostName').val(),
-        partyStatus: document.getElementById('partyStatus').selectedIndex,
-        password: document.getElementById('password').value
-    });
+    if ($('#partyStatus')[0].selectedIndex == 1 && $('#password')[0].value == '') {
+        $('#Alert-EmptyPassword').show();
+    }
+    else {
+        socket.emit('hostGame', {
+            hostName: $('#hostName').val(),
+            partyStatus: document.getElementById('partyStatus').selectedIndex,
+            password: document.getElementById('password').value
+        })
+    };
 };
 
 socket.on('startGame', function (data) {

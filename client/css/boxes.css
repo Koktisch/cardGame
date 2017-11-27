@@ -3,33 +3,64 @@
     padding-left: 0px;
     position: static;
 }
+.custom-nav {
+    float: right;
+}
+.navbar-cust {
+    margin-bottom: 0.5%;
+    max-height: 5%;
+}
+
+.row-cust {
+    height: 93.5%;
+    margin-left: 0px;
+    margin-right: 0px;
+}
+
 #hostGameButton {
-    position: absolute;
-    bottom: 0;
-    left: 0;
+    background-color: #657fa5;
+}
+.centerHostParam {
+    margin: 4px 7px;
 }
 #gamesBox {
     height: 100%;
-    background-color: blue;
+    border: solid 3px rgba(49, 127, 59, 0.95);
+    padding: 0px;
+    background-color: rgba(243, 243, 243, 0.95);
 }
 #playersOnPage {
-    background-color: yellow;
     height: 100%;
     padding-left: 0px;
+    border-bottom: solid 3px rgba(49, 127, 59, 0.95);
+    border-top: solid 3px rgba(49, 127, 59, 0.95);
+    border-left: solid 3px rgba(49, 127, 59, 0.95);
 }
 #socialBox {
     height: 100%;
-    background-color: pink;
+    border-bottom: solid 3px rgba(49, 127, 59, 0.95);
+    border-top: solid 3px rgba(49, 127, 59, 0.95);
     padding: 0px;
+    border-right: solid 3px rgba(49, 127, 59, 0.95);
 }
 #txtInp {
-    width: 76%;
+    width: 100%;
+}
+
+#chatBorder {
+    width: 97%;
+    margin: 1%;
+    background-color: rgba(255, 255, 255, 0.95);
+    height: 96%;
+    border: 1px double;
 }
 
 #btnTextSend {
     min-width: 23%;
 }
-
+#labelXLarge {
+    font-size: larger;
+}
 p {
     margin: 0;
     padding-left: 8px;
@@ -45,19 +76,25 @@ p {
 }
 #hostBox {
     width: 100%;
-    height: 40%;
-    background-color: red;
+    height: 25%;
+    border: solid 1px #9d9d9d;
+    background-color: rgba(255, 255, 255, 0.95);
     position: relative;
 }
 #chat {
     width: 100%;
-    height: 57%;
+    height: 75%;
     float: left;
 }
 
 .gameDiv {
-    width: 400px;
-    height: 100px;
+    font-size: large;
+    padding-top: 2px;
+    padding-left: 7px;
+    padding-bottom: 2px;
+    color: rgba(34, 62, 34, 0.9098039215686274);
+    width: 100%;
+    height: 40px;
     border: 1px solid black;
 }
 
@@ -71,9 +108,8 @@ p {
     left: 33%;
     top: 30%;
     padding: 15px;
-    border-radius: 20px;
     position: absolute;
-    background-color: pink;
+    background-color: rgba(109, 173, 118, 0.95);
     height: 100px;
     display: none;
 }
@@ -90,11 +126,13 @@ p {
     position: absolute;
     bottom: 0px;
     left: 0px;
-    min-width: 100%;
+    height: 2.5%;
+    width: 100%;
 }
 
 #messages {
     padding-left: 10px;
+    word-wrap: break-word;
 }
 
 ul {

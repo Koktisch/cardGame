@@ -54,28 +54,12 @@ html, body, #pc, #mobile {
     height: 100%;
     z-index: 3000;
 }
-
-#chat {
-    width: 100%;
-    height: 57%;
-    float: left;
-}
-
-#chat-text {
-    width: 100%;
-    height: 100%;
-    overflow-y: scroll
-}
-
-#chat-input {
-    width: 100%;
-}
-
-#chat-form {
-    width: 100%;
-    padding-top: 0%;
-    margin-top: 1%;
-    float: left;
+#Alert-EmptyPassword {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: -1px;
+    z-index: 200000;
 }
 
 .gameDiv {
