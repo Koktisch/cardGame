@@ -6,6 +6,15 @@
     display: none;
 }
 
+.error {
+    position: absolute;
+    top: 0px;
+    text-align: center;
+    display: none;
+    color: red;
+    font-size: 72px;
+    font-weight: bold;
+}
 .blockBox {
     position: absolute;
     z-index: 9000;
@@ -27,25 +36,43 @@
 }
 
 #connectController {
-    position: absolute;
-    z-index: 10000;
     left: 50%;
+    height: 100%;
     padding: 10px;
-    top: 20%;
-    right: 50%;
-    min-width: 270px;
+    width: 100%;
     background-color: white;
+    display: flex;
+    flex-flow: column nowrap;
 }
 
-#connectBtn {
-    margin: 12px 24%;
-    background-color: rgba(41, 41, 41, 0.07);
+#connectController > .btn-primary {
+    position: absolute;
+    bottom: 0px;
+    width: 98%;
+    background-color: rgba(49, 127, 59, 0.95);
+    font-size: 65px;
+}
+
+#connectController > p {
+    text-align: center;
+    margin: 15%;
+    font-size: 85px;
+    font-weight: bold;
+    color: rgba(49, 127, 59, 0.95);
+}
+
+.blockBox > p {
+    text-align: center;
+    font-size: 80px;
+    font-weight: bold;
+    color: white;
+    margin-top: 45%;
 }
 
 #controlerCode {
     margin-left: 30px;
     padding-bottom: 5px;
-    font-size: 16px;
+    font-size: 100px;
     border: 0px solid white;
     border-bottom: 1px solid rgba(0,0,0,0.4);
     justify-content: center;

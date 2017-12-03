@@ -14,21 +14,6 @@ socket.on('startGameController', function (data) {
     $('#waiting').css('display', 'none');
 });
 
-function addControler() {
-    socket.emit('addControler', {
-        codeValue: $('#controlerCode').val()
-    });
-
-    socket.on('addControlerResualt_CN', function (data) {
-        if (data === true) {
-            $('#waiting').css('display', 'block');
-            $('#connectController').css('display', 'none');
-        }
-        else {
-            $('#errorCn').html('B³¹d po³¹czenia kontrolera!');
-        }
-    });
-}
 
 function createCard(id, name, cost, dmg, def, img, abillity, artist, spy) {
     var innerTxt =

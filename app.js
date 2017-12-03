@@ -636,11 +636,12 @@ io.sockets.on('connection', function (socket) {
     });
 
     //Chat
-    if (PLAYER_LIST[socket.id] != undefined) {
+    //if (PLAYER_LIST[socket.id] != undefined) {
         socket.on('message', function (msg) {
-            io.emit('message', PLAYER_LIST[socket.id].userName + ': ' + msg);
+            if (msg != '')
+             io.emit('message', PLAYER_LIST[socket.id].userName + ': ' + msg);
         });
-    }
+   // }
 
     //Board
     socket.on('addCardToBoard', function (card) {

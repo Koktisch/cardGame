@@ -6,25 +6,27 @@
     <title></title>
     <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script> 
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <link rel="stylesheet" href="client/css/mainStyle.css" />
     <link rel="stylesheet" href="client/css/controler.css" />
     <link rel="stylesheet" href="client/css/board.css" />
     <link rel="stylesheet" href="client/css/boxes.css" />
     <script>
-        if ($('#logBox').is(":visible") === false && $('#board').is(":visible") === false)
-        {
             $(document).ready(function () {
                 $(document).keypress(function (e) {
-                    if (e.which == 13) {
+                    if (e.which == 13 && $('#txtInp').val() != '') {
                         socket.emit('message', $('#txtInp').val());
                         $('#txtInp').val('')
                     }
                 });
             });
-        };
-        
+
+        if (localStorage.getItem('firstTimeOnSite') == true)
+        {
+            $('#firstHelp').show();
+            $('.blockBox').show();
+        }
+
         var partyStatusEnum = Object.freeze({ "public": 0, "private": 1, "full": 2 })
 
         var phoneModels = new RegExp('Android|webOS|iPhone|iPad|' +
@@ -33,7 +35,110 @@
             'i');       
 
         var socket = io();
-        
+
+
+        function getLobbysFromServer() {
+            if (!phoneModels.test(navigator.userAgent)) {
+                socket.emit('getPartyList');
+                socket.on('partyList', function (data) {
+                    let gamesBox = document.getElementById("gamesBox");
+                    if (gamesBox.firstChild) {
+                        //usuwanie gameboxa
+                        while (gamesBox.firstChild) {
+                            gamesBox.removeChild(gamesBox.firstChild);
+                        }
+                    }
+                    //wypełnianie game boxa
+                    for (var gameNum in data) {
+                        if (data[gameNum].partyStatus != 2) {
+                            let div = document.createElement("div");
+                            let span = document.createElement("span");
+                            let input = document.createElement("input");
+
+                            span.classList.add("glyphicon");
+                            if (data[gameNum].id === socket.id) {
+                                span.classList.add("glyphicon-remove-circle");
+                                span.style = "float: right;color: #1b4235;font-size: 26px;margin-right: 3px;margin-top: 3px;";
+                                span.id = 'btnForLinked'
+                                span.onclick = function () { leaveLobby(); };
+                            }
+                            else {
+                                span.classList.add("glyphicon-ok-circle");
+                                span.style = "float: right;color: #1b4235;font-size: 26px;margin-right: 3px;margin-top: 3px;";
+                                span.style.color = "green";
+                                span.onclick = function () { joinLobby(this); };
+                            }
+                            span.id = data[gameNum].id;
+
+                            div.classList.add('gameDiv');
+                            div.id = data[gameNum].partyStatus + '?' + data[gameNum].id;
+                            if (data[gameNum].partyStatus == 1) {                                
+                                input.classList = "passBox";
+                                input.placeholder = "Hasło";
+                            }
+
+                            if (data[gameNum].roomName != '')
+                                div.innerHTML = data[gameNum].roomName;
+                            else
+                                div.innerHTML = 'Gra użytkownika: ' + data[gameNum].firstPlayer.userName;
+                            if (data[gameNum].id != socket.id) {
+                                div.appendChild(input);
+                            }
+                            div.appendChild(span);
+                            document.getElementById("gamesBox").appendChild(div);
+                        }
+                    }
+                });
+            }
+        }
+
+        function addPlayer() {
+            if ($('#userName').val()) {
+                socket.emit('addPlayer', {
+                    userName: $('#userName').val()
+                });
+            }
+            else {
+                $('#errorPc').val('Nazwij się :)')
+            }
+
+            socket.on('addPlayerResult', function (data) {
+                if (data === false) {
+                    $('#logBox').css('display', 'none');
+                    getControllerCode();
+                    getUsers();
+                    getLobbysFromServer();
+                    if (localStorage.getItem('firstTimeOnSite') != 'false') {
+                        $('#firstHelp').show();
+                        $('.blockBox').show();
+                    }
+                    localStorage.setItem('firstTimeOnSite', 'false');
+                }
+                else {
+                    alert('Nazwa jest już używana. Wybierz inną.');
+                }
+            });
+
+        }
+
+        function addControler() {
+            socket.emit('addControler', {
+                codeValue: $('#controlerCode').val()
+            });
+
+            socket.on('addControlerResualt_CN', function (data) {
+                if (data === true) {
+                    $('#waiting').css('display', 'block');
+                    $('#connectController').css('display', 'none');
+                    $('#waitingBox').show();
+                }
+                else {
+                    $('#errorCn').html('Błąd połączenia kontrolera!');
+                    $('#errorCn').css('display', 'block');
+                }
+            });
+        }
+
     </script>
     <script type="text/javascript" src="client/js/Board.js"></script>
     <script type="text/javascript" src="client/js/Controller.js"></script>
@@ -53,8 +158,8 @@
             </div>
             <div class="container-fluid">
                 <div class="navbar-header">
-                    <a class="navbar-brand" href="#">#NiemanazwyJeszcze :C</a>
-                </div>
+                    <a class="navbar-brand" href="#">Slavstone</a>
+                </div>                
                 <div class="nav navbar-nav custom-nav">                   
                     <input id="hostName" class="centerHostParam" placeholder="Nazwa pokoju" />
                     <select id="partyStatus" class="dropdown-menu centerHostParam" onchange="$('#password').toggle(); $('#Alert-EmptyPassword').hide()">
@@ -85,32 +190,65 @@
 
                 </div>
                 <!--Divy z position absolute-->
-                <div id="passBox">
-                    Wprowadź hasło: <input id="pass-input" type="password" />
-                    <button id="btnPass" onclick="checkPassword()">Enter</button>
-                </div>
                 <div id="controllerCode">
                     Wejdź na telefonie tutaj i wpisz poniższy kod:
                     <a id="code"></a>
                 </div>
 
-                <div class="error" id="error">
+                <div id="firstHelp" class="helpTip">
+                    <span class="label label-success" id="helpLabel">Wprowadzenie</span>
+                    <div>
+                        Witaj w Slavstone.<br />
+                        Pomogę Ci postawić pierwsze kroki tutaj !
+                    </div>
+                    <span id="firstTip" class="glyphicon glyphicon-chevron-right" onclick="$('#firstHelp').hide();$('#firstHelp_tip1').show();$('#firstHelp_tip2').show();$('#firstHelp_tip3').show();"></span>                   
+                </div>
+                
+            <div id="firstHelp_tip1" class="helpTip">
+                <span class="label label-success" id="helpLabel">Komunikator</span>
+                <div>
+                    Tutaj mamy czat do komunikacji z użytkownikami będącymi na stronie.
+                </div>
+                <span id="firstTip" class="glyphicon glyphicon-chevron-right" onclick="$('#firstHelp_tip1').hide(); $('#firstHelp_tip2').hide(); $('#firstHelp_tip3').hide(); $('#game_rules_Help_tip').show();"></span>
+            </div>
+
+                <div id="firstHelp_tip2" class="helpTip">
+                    <span class="label label-success" id="helpLabel">Pokoje</span>
+                    <div>
+                        W tym miejscu znajdują pokoje utworzone przez graczy. Zasady rozgrywki objaśnię na końcu.
+                     </div>
+                    <span id="firstTip" class="glyphicon glyphicon-chevron-right" onclick="$('#firstHelp_tip1').hide(); $('#firstHelp_tip2').hide(); $('#firstHelp_tip3').hide(); $('#game_rules_Help_tip').show();"></span>
+               </div>
+
+                <div id="firstHelp_tip3" class="helpTip">
+                    <span class="label label-success" id="helpLabel">Gracze</span>
+                    <div>No i najważniejsze, czyli Wy. Ta część pokazuje kto tutaj się znajduje. </div>
+                    <span id="firstTip" class="glyphicon glyphicon-chevron-right" onclick="$('#firstHelp_tip1').hide(); $('#firstHelp_tip2').hide(); $('#firstHelp_tip3').hide(); $('#game_rules_Help_tip').show();"></span>                   
+                </div>
+
+                <div id="game_rules_Help_tip" class="helpTip">
+                    <span class="label label-success" id="helpLabel">Zasady gry</span>
+                    <div></div>
+                        <span id="firstTip" class="glyphicon glyphicon-chevron-right" onclick="$('#game_rules_Help_tip').hide();$('.blockBox').hide();"></span>
+                    </div>
+                <div class="error" id="error">`
 
                 </div>
             </div>
+        <footer>
+            <span class="glyphicon glyphicon-info-sign" onclick="$('#firstHelp').show();$('.blockBox').show();"></span>
+        </footer>
     </div>
 
     <div id="mobile">     
-        <div class="blockBox">
-            <div id="waiting">
-                Czekam na rozpoczęcie gry.
-            </div>  
+        <div class="blockBox" id="waitingBox">
+            <p> Czekam na rozpoczęcie gry.</p> 
             <div id="opponentMove">Ruch przeciwnika</div>            
         </div>
         <div id="connectController">
-            Wpisz kod by połączyć go z kontrolerem
+            <p>Wpisz kod by połączyć go z kontrolerem</p>
             <input type="text" id="controlerCode" />
-            <button id="connectBtn" onclick="addControler()">Połącz kontrtoler</button>
+            <button id="connectBtn" onclick="addControler()" type="button" class="btn btn-primary">Połącz kontrtoler</button>
             <a class="error" id="errorCn"></a>
         </div>
         <div id="controlerBoard">           

@@ -62,12 +62,6 @@ html, body, #pc, #mobile {
     z-index: 200000;
 }
 
-.gameDiv {
-    width: 400px;
-    height: 100px;
-    border: 1px solid black;
-}
-
 #messages {
     padding-left: 10px;
 }
