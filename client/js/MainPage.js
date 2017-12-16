@@ -92,21 +92,3 @@ function getControllerCode() {
         $('#controllerCode').css('display', 'block');
     });
 }
-
-function checkPassword(pass, id) {
-    var isCorrect;
-    socket.emit('checkPassword', {
-        password: pass,
-        id: id
-    });
-
-    socket.on('checkPasswordResualt', function (data) {
-        if (data.resualt) {
-            joinLobby(id);
-        }
-        else {
-            alert('Z³e has³o');
-        }
-    });
-
-}

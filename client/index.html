@@ -21,10 +21,22 @@
                 });
             });
 
-        if (localStorage.getItem('firstTimeOnSite') == true)
-        {
-            $('#firstHelp').show();
-            $('.blockBox').show();
+        function checkPassword(pass, id) {
+            var isCorrect;
+            socket.emit('checkPassword', {
+                password: pass,
+                id: id
+            });
+
+            socket.on('checkPasswordResualt', function (data) {
+                if (data.resualt) {
+                    joinLobby(id);
+                }
+                else {
+                    alert('Złe hasło');
+                }
+            });
+
         }
 
         var partyStatusEnum = Object.freeze({ "public": 0, "private": 1, "full": 2 })
@@ -81,7 +93,7 @@
                                 div.innerHTML = data[gameNum].roomName;
                             else
                                 div.innerHTML = 'Gra użytkownika: ' + data[gameNum].firstPlayer.userName;
-                            if (data[gameNum].id != socket.id) {
+                            if (data[gameNum].id != socket.id && data[gameNum].partyStatus == 1) {
                                 div.appendChild(input);
                             }
                             div.appendChild(span);
@@ -133,8 +145,7 @@
                     $('#waitingBox').show();
                 }
                 else {
-                    $('#errorCn').html('Błąd połączenia kontrolera!');
-                    $('#errorCn').css('display', 'block');
+                    alert('Błąd połączenia kontrolera!');
                 }
             });
         }
@@ -248,10 +259,10 @@
         <div id="connectController">
             <p>Wpisz kod by połączyć go z kontrolerem</p>
             <input type="text" id="controlerCode" />
-            <button id="connectBtn" onclick="addControler()" type="button" class="btn btn-primary">Połącz kontrtoler</button>
-            <a class="error" id="errorCn"></a>
+            <button id="connectBtn" onclick="addControler()" type="button" class="btn btn-primary">Połącz kontroler</button>
         </div>
-        <div id="controlerBoard">           
+        <div id="controlerBoard">     
+            <div id="boardLine"></div>
         </div>      
 
         <button id="atackPosition" onclick="setInPos('attack')">Pozycja atakująca</button>

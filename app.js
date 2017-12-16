@@ -267,12 +267,11 @@ var CARD = function () {
         card.Name = 'Cholera';
         card.DmgValue = 2;
         card.DefValue = 8;
-        card.Text = 'Os³ab jednostkê o 1 co turê';
-        card.isSpy = cardType.Spy;
-        card.Image = 'client/img/cholera.jpg';
-        card.Ability = null;
+        card.Text = '';
+        card.isSpy = cardType.NoSpy;
+        card.Image = 'client/img/Cards/cholera.jpg';
         card.createdBy = 'https://vasylina.deviantart.com/';
-
+        card.createdName = 'Vasylina';
         return card;
     }
 
@@ -281,12 +280,11 @@ var CARD = function () {
         card.Name = 'Syrena';
         card.DmgValue = 4;
         card.DefValue = 5;
-        card.Text = 'Przenieœ jedn¹ jednostkê na swoj¹ stronê';
+        card.Text = '';
         card.isSpy = cardType.NoSpy;
-        card.Image = 'client/img/mermaid.jpg';
-        card.Ability = null;
+        card.Image = 'client/img/Cards/mermaid.jpg';
         card.createdBy = 'https://vasylina.deviantart.com/';
-
+        card.createdName = 'Vasylina';
         return card;
     }
 
@@ -295,12 +293,11 @@ var CARD = function () {
         card.Name = 'Ksiê¿ycowy jeŸdziec';
         card.DmgValue = 6;
         card.DefValue = 3;
-        card.Text = 'Zablokuj umiejêtnoœæ jednej jednostki';
+        card.Text = '';
         card.isSpy = cardType.NoSpy;
-        card.Image = 'client/img/twilight_rider.jpg';
-        card.Ability = null;
+        card.Image = 'client/img/Cards/twilight_rider.jpg';
         card.createdBy = 'https://vasylina.deviantart.com/';
-
+        card.createdName = 'Vasylina';
         return card;
     }    
 
@@ -311,10 +308,9 @@ var CARD = function () {
         card.DefValue = 7;
         card.Text = '';
         card.isSpy = cardType.NoSpy;
-        card.Image = 'client/img/belobog.jpg';
-        card.Ability = null;
+        card.Image = 'client/img/Cards/belobog.jpg';
         card.createdBy = 'https://vasylina.deviantart.com/';
-
+        card.createdName = 'Vasylina';
         return card;
     }    
 
@@ -323,12 +319,11 @@ var CARD = function () {
         card.Name = 'Chernobog';
         card.DmgValue = 7;
         card.DefValue = 2;
-        card.Text = 'Zablokuj umiejêtnoœæ jednej jednostki';
+        card.Text = '';
         card.isSpy = cardType.NoSpy;
-        card.Image = 'client/img/chernobog.jpg';
-        card.Ability = null;
+        card.Image = 'client/img/Cards/chernobog.jpg';
         card.createdBy = 'https://vasylina.deviantart.com/';
-
+        card.createdName = 'Vasylina';
         return card;
     }    
 
@@ -337,12 +332,11 @@ var CARD = function () {
         card.Name = 'Domovov';
         card.DmgValue = 4;
         card.DefValue = 4;
-        card.Text = 'Zablokuj umiejêtnoœæ jednej jednostki';
+        card.Text = '';
         card.isSpy = cardType.NoSpy;
-        card.Image = 'client/img/domovoi.jpg';
-        card.Ability = null;
+        card.Image = 'client/img/Cards/domovoi-men.jpg';
         card.createdBy = 'https://vasylina.deviantart.com/';
-
+        card.createdName = 'Vasylina';
         return card;
     }    
 
@@ -351,12 +345,11 @@ var CARD = function () {
         card.Name = 'Hybrid';
         card.DmgValue = 4;
         card.DefValue = 4;
-        card.Text = 'Zablokuj umiejêtnoœæ jednej jednostki';
+        card.Text = '';
         card.isSpy = cardType.NoSpy;
-        card.Image = 'client/img/hybrid.jpg';
-        card.Ability = null;
+        card.Image = 'client/img/Cards/hybrid.jpg';
         card.createdBy = 'https://vasylina.deviantart.com/';
-
+        card.createdName = 'Vasylina';
         return card;
     }  
 
@@ -365,12 +358,11 @@ var CARD = function () {
         card.Name = 'Morana: Wiosna';
         card.DmgValue = 4;
         card.DefValue = 4;
-        card.Text = 'Zablokuj umiejêtnoœæ jednej jednostki';
+        card.Text = '';
         card.isSpy = cardType.NoSpy;
-        card.Image = 'client/img/moranaSpring.jpg';
-        card.Ability = null;
+        card.Image = 'client/img/Cards/moranaSpring.jpg';
         card.createdBy = 'https://vasylina.deviantart.com/';
-
+        card.createdName = 'Vasylina';
         return card;
     }  
 
@@ -379,12 +371,11 @@ var CARD = function () {
         card.Name = 'Morana: Zima';
         card.DmgValue = 4;
         card.DefValue = 4;
-        card.Text = 'Zablokuj umiejêtnoœæ jednej jednostki';
+        card.Text = '';
         card.isSpy = cardType.NoSpy;
-        card.Image = 'client/img/moranaWinter.jpg';
-        card.Ability = null;
+        card.Image = 'client/img/Cards/moranaWinter.jpg';
         card.createdBy = 'https://vasylina.deviantart.com/';
-
+        card.createdName = 'Vasylina';
         return card;
     }  
 
@@ -393,27 +384,11 @@ var CARD = function () {
         card.Name = 'Wi³ko³ak';
         card.DmgValue = 4;
         card.DefValue = 4;
-        card.Text = 'Zablokuj umiejêtnoœæ jednej jednostki';
+        card.Text = '';
         card.isSpy = cardType.NoSpy;
-        card.Image = 'client/img/volkolak.jpg';
-        card.Ability = null;
+        card.Image = 'client/img/Cards/volkolak.jpg';
         card.createdBy = 'https://vasylina.deviantart.com/';
-
-        return card;
-    }  
-
-
-    card.vuzhalka = function () {
-        card.ID = 11;
-        card.Name = 'Vuzhalka';
-        card.DmgValue = 4;
-        card.DefValue = 4;
-        card.Text = 'Zablokuj umiejêtnoœæ jednej jednostki';
-        card.isSpy = cardType.NoSpy;
-        card.Image = 'client/img/vuzhalka.jpg';
-        card.Ability = null;
-        card.createdBy = 'https://vasylina.deviantart.com/';
-
+        card.createdName = 'Vasylina';
         return card;
     }  
 
@@ -422,11 +397,11 @@ var CARD = function () {
         card.Name = 'zlata_maja';
         card.DmgValue = 4;
         card.DefValue = 4;
-        card.Text = 'Zablokuj umiejêtnoœæ jednej jednostki';
+        card.Text = '';
         card.isSpy = cardType.NoSpy;
-        card.Image = 'client/img/zlata_maja.jpg';
-        card.Ability = null;
+        card.Image = 'client/img/Cards/zlata_maja.jpg';
         card.createdBy = 'https://vasylina.deviantart.com/';
+        card.createdName = 'Vasylina';
 
         return card;
     }  
@@ -436,12 +411,11 @@ var CARD = function () {
         card.Name = 'zmey_gorynych';
         card.DmgValue = 4;
         card.DefValue = 4;
-        card.Text = 'Zablokuj umiejêtnoœæ jednej jednostki';
+        card.Text = '';
         card.isSpy = cardType.NoSpy;
-        card.Image = 'client/img/zmey_gorynych.jpg';
-        card.Ability = null;
+        card.Image = 'client/img/Cards/zmey_gorynych.jpg';
         card.createdBy = 'https://vasylina.deviantart.com/';
-
+        card.createdName = 'Vasylina';
         return card;
     }
     return card;

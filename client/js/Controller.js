@@ -15,16 +15,15 @@ socket.on('startGameController', function (data) {
 });
 
 
-function createCard(id, name, cost, dmg, def, img, abillity, artist, spy) {
+function createCard(id, name, cost, dmg, def, img, abillity, artist, spy, createdName) {
     var innerTxt =
-        '<div class="card" onclick="choseCard(this)"><div>' +
-        '<div id="isSpy">' + spy + '</div>' +
-        '<div class="name" id="IDS' + id +'">' + name + '</div> ' +
-        '<img src="' + img +'" id="img">' +
-        '<div id="ability">' + abillity + '</div>' +
-        '<div id="dmg">' + dmg + '</div> ' +
-        '<div id="def">' + def + '</div> ' +        
-        '<a id="created" href="' + artist +'"></a> </div></div>';
+        '<div class="card" onclick="choseCard(this)"><div id="inCard">' +
+        '<div class="name" id="IDS' + id + '">' + name + '</div> ' +
+        '<img id="isSpy" src="client/img/Icons/Eye_open.png">'+        
+        '<img src="' + img + '" id="imgCard">' +
+        '<div id="dmg"><img id="attackImg" src="client/img/Icons/attack.png"><div>' + dmg + '</div></div> ' +
+        '<div id="created" href="' + artist + ' target="_blank">' + createdName + '</div>' + 
+        '<div id="def"><img id="shieldImg" src="client/img/Icons/shield.png"><div>'+def+'</div></div></div></div>';
 
     return innerTxt;
 }
@@ -32,7 +31,7 @@ function createCard(id, name, cost, dmg, def, img, abillity, artist, spy) {
 function loadCards(cards) {
     for (var i = 0; i < cards.length; i++) {
         var card = cards[i];
-        $('#controlerBoard').append(createCard(card.ID, card.Name, card.Cost, card.DmgValue, card.DefValue, card.Image, card.Ability, card.createdBy, card.isSpy));
+        $('#boardLine').append(createCard(card.ID, card.Name, card.Cost, card.DmgValue, card.DefValue, card.Image, card.Ability, card.createdBy, card.isSpy, card.createdName));
     }
     $('#controlerBoard').css('display', 'block');
 }
@@ -63,15 +62,13 @@ function setInPos(position)
 
 socket.on('setTurn_Controller', function (turn) {
     if (turn.yourTurn)
-    {
-        $('.blockBox').css('display', 'none');
-
+    {       
+        //todo inna blokada    
     }
     else
     {
         $('#atackPosition').css('display', 'none');
         $('#defensPosition').css('display', 'none');
-        $('.blockBox').css('display', 'block');
         $('#opponentMove').css('display', 'block');
     }    
 });
