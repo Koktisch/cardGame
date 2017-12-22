@@ -12,6 +12,12 @@
     <link rel="stylesheet" href="client/css/board.css" />
     <link rel="stylesheet" href="client/css/boxes.css" />
     <script>
+        var cardsName = Object.freeze({
+            "1": "Zaraza", "2": "Syrena", "3": "Księżycowy jeździec", "4": "Belobog", "5": "Chernobog", "6": "Domovov",
+            "7": "Hybrid", "8": "Morana: Wiosna", "9": "Morana: Zima", "10": "Wiłkołak", "11": "Złota Maja"
+        })
+
+
             $(document).ready(function () {
                 $(document).keypress(function (e) {
                     if (e.which == 13 && $('#txtInp').val() != '') {
@@ -151,9 +157,9 @@
         }
 
     </script>
-    <script type="text/javascript" src="client/js/Board.js"></script>
-    <script type="text/javascript" src="client/js/Controller.js"></script>
-    <script type="text/javascript" src="client/js/MainPage.js"></script>
+    <script type="text/javascript" src="client/js/Board.js" charset="utf-8"></script>
+    <script type="text/javascript" src="client/js/Controller.js" charset="utf-8"></script>
+    <script type="text/javascript" src="client/js/MainPage.js" charset="utf-8"></script>
 </head>
 <body onload="pageStarted()">
     <div id="pc" class="container-fluid">
@@ -248,26 +254,30 @@
             </div>
         <footer>
             <span class="glyphicon glyphicon-info-sign" onclick="$('#firstHelp').show();$('.blockBox').show();"></span>
+            <div style="float: right;">Icons made by <a href="http://www.freepik.com" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>
         </footer>
     </div>
 
-    <div id="mobile">     
+    <div id="mobile">
         <div class="blockBox" id="waitingBox">
-            <p> Czekam na rozpoczęcie gry.</p> 
-            <div id="opponentMove">Ruch przeciwnika</div>            
+            <p> Czekam na rozpoczęcie gry.</p>
         </div>
         <div id="connectController">
             <p>Wpisz kod by połączyć go z kontrolerem</p>
             <input type="text" id="controlerCode" />
             <button id="connectBtn" onclick="addControler()" type="button" class="btn btn-primary">Połącz kontroler</button>
         </div>
-        <div id="controlerBoard">     
+        <div id="controlerBoard">
+            <div id="opponentMove">Tura: </div>
             <div id="boardLine"></div>
-        </div>      
+        </div>
 
-        <button id="atackPosition" onclick="setInPos('attack')">Pozycja atakująca</button>
-        <button id="defensPosition" onclick="setInPos('defense')">Pozycja obronna</button>
-
+        <div class="positionButtons">
+            <img id="atackPosition" src="client/img/Icons/attack.png" alt="Atakuj!" onclick="setInPos('attack')">
+        </div>
+        <div id="divDef" class="positionButtons">
+            <img id="defensPosition" src="client/img/Icons/shield.png" alt="Broń!" onclick="setInPos('defense')">
+        </div>
         <div id="closeGame">
             <button onclick="closeBoard()">Zamknij</button>
         </div>

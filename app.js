@@ -270,7 +270,7 @@ var CARD = function () {
         card.Text = '';
         card.isSpy = cardType.NoSpy;
         card.Image = 'client/img/Cards/cholera.jpg';
-        card.createdBy = 'https://vasylina.deviantart.com/';
+        card.createdBy = 'https://vasylina.deviantart.com';
         card.createdName = 'Vasylina';
         return card;
     }
@@ -283,7 +283,7 @@ var CARD = function () {
         card.Text = '';
         card.isSpy = cardType.NoSpy;
         card.Image = 'client/img/Cards/mermaid.jpg';
-        card.createdBy = 'https://vasylina.deviantart.com/';
+        card.createdBy = 'https://vasylina.deviantart.com';
         card.createdName = 'Vasylina';
         return card;
     }
@@ -296,7 +296,7 @@ var CARD = function () {
         card.Text = '';
         card.isSpy = cardType.NoSpy;
         card.Image = 'client/img/Cards/twilight_rider.jpg';
-        card.createdBy = 'https://vasylina.deviantart.com/';
+        card.createdBy = 'https://vasylina.deviantart.com';
         card.createdName = 'Vasylina';
         return card;
     }    
@@ -309,7 +309,7 @@ var CARD = function () {
         card.Text = '';
         card.isSpy = cardType.NoSpy;
         card.Image = 'client/img/Cards/belobog.jpg';
-        card.createdBy = 'https://vasylina.deviantart.com/';
+        card.createdBy = 'https://vasylina.deviantart.com';
         card.createdName = 'Vasylina';
         return card;
     }    
@@ -322,7 +322,7 @@ var CARD = function () {
         card.Text = '';
         card.isSpy = cardType.NoSpy;
         card.Image = 'client/img/Cards/chernobog.jpg';
-        card.createdBy = 'https://vasylina.deviantart.com/';
+        card.createdBy = 'https://vasylina.deviantart.com';
         card.createdName = 'Vasylina';
         return card;
     }    
@@ -330,12 +330,12 @@ var CARD = function () {
     card.domovoi = function () {
         card.ID = 6;
         card.Name = 'Domovov';
-        card.DmgValue = 4;
-        card.DefValue = 4;
+        card.DmgValue = 2;
+        card.DefValue = 5;
         card.Text = '';
         card.isSpy = cardType.NoSpy;
         card.Image = 'client/img/Cards/domovoi-men.jpg';
-        card.createdBy = 'https://vasylina.deviantart.com/';
+        card.createdBy = 'https://vasylina.deviantart.com';
         card.createdName = 'Vasylina';
         return card;
     }    
@@ -348,7 +348,7 @@ var CARD = function () {
         card.Text = '';
         card.isSpy = cardType.NoSpy;
         card.Image = 'client/img/Cards/hybrid.jpg';
-        card.createdBy = 'https://vasylina.deviantart.com/';
+        card.createdBy = 'https://vasylina.deviantart.com';
         card.createdName = 'Vasylina';
         return card;
     }  
@@ -356,12 +356,12 @@ var CARD = function () {
     card.moranaSpring = function () {
         card.ID = 8;
         card.Name = 'Morana: Wiosna';
-        card.DmgValue = 4;
+        card.DmgValue = 3;
         card.DefValue = 4;
         card.Text = '';
         card.isSpy = cardType.NoSpy;
         card.Image = 'client/img/Cards/moranaSpring.jpg';
-        card.createdBy = 'https://vasylina.deviantart.com/';
+        card.createdBy = 'https://vasylina.deviantart.com';
         card.createdName = 'Vasylina';
         return card;
     }  
@@ -370,11 +370,11 @@ var CARD = function () {
         card.ID = 9;
         card.Name = 'Morana: Zima';
         card.DmgValue = 4;
-        card.DefValue = 4;
+        card.DefValue = 3;
         card.Text = '';
         card.isSpy = cardType.NoSpy;
         card.Image = 'client/img/Cards/moranaWinter.jpg';
-        card.createdBy = 'https://vasylina.deviantart.com/';
+        card.createdBy = 'https://vasylina.deviantart.com';
         card.createdName = 'Vasylina';
         return card;
     }  
@@ -382,42 +382,29 @@ var CARD = function () {
     card.volkolak = function () {
         card.ID = 10;
         card.Name = 'Wi³ko³ak';
-        card.DmgValue = 4;
+        card.DmgValue = 5;
         card.DefValue = 4;
         card.Text = '';
         card.isSpy = cardType.NoSpy;
         card.Image = 'client/img/Cards/volkolak.jpg';
-        card.createdBy = 'https://vasylina.deviantart.com/';
+        card.createdBy = 'https://vasylina.deviantart.com';
         card.createdName = 'Vasylina';
         return card;
     }  
 
     card.zlata_maja = function () {
-        card.ID = 12;
-        card.Name = 'zlata_maja';
+        card.ID = 11;
+        card.Name = 'Z³ota Maja';
         card.DmgValue = 4;
-        card.DefValue = 4;
+        card.DefValue = 6;
         card.Text = '';
         card.isSpy = cardType.NoSpy;
         card.Image = 'client/img/Cards/zlata_maja.jpg';
-        card.createdBy = 'https://vasylina.deviantart.com/';
+        card.createdBy = 'https://vasylina.deviantart.com';
         card.createdName = 'Vasylina';
 
         return card;
     }  
-
-    card.zmey_gorynych = function () {
-        card.ID = 13;
-        card.Name = 'zmey_gorynych';
-        card.DmgValue = 4;
-        card.DefValue = 4;
-        card.Text = '';
-        card.isSpy = cardType.NoSpy;
-        card.Image = 'client/img/Cards/zmey_gorynych.jpg';
-        card.createdBy = 'https://vasylina.deviantart.com/';
-        card.createdName = 'Vasylina';
-        return card;
-    }
     return card;
 }
 

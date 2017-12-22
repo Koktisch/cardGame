@@ -1,15 +1,16 @@
 socket.on('startGameController', function (data) {
     localStorage.setItem('hostGame', JSON.stringify(data));
+    $('.blockBox').css('display', 'none');
     if (data.deck !== 'undefined') {
         loadCards(data.deck);
     }
     if (data.start) {
-        $('.blockBox').css('display', 'none');
-        $('#opponentMove').css('display', 'none');
+        $('#opponentMove').text('Tura: Twoja');
+        $('#opponentMove').attr('value', 'true');
     }
     else {
-        $('.blockBox').css('display', 'block');
-        $('#opponentMove').css('display', 'block');
+        $('#opponentMove').text('Tura: Przeciwnika');
+        $('#opponentMove').attr('value', 'false');
     }
     $('#waiting').css('display', 'none');
 });
@@ -18,11 +19,11 @@ socket.on('startGameController', function (data) {
 function createCard(id, name, cost, dmg, def, img, abillity, artist, spy, createdName) {
     var innerTxt =
         '<div class="card" onclick="choseCard(this)"><div id="inCard">' +
-        '<div class="name" id="IDS' + id + '">' + name + '</div> ' +
+        '<div class="name" id="IDS' + id + '">' + cardsName[id] + '</div> ' +
         '<img id="isSpy" src="client/img/Icons/Eye_open.png">'+        
         '<img src="' + img + '" id="imgCard">' +
         '<div id="dmg"><img id="attackImg" src="client/img/Icons/attack.png"><div>' + dmg + '</div></div> ' +
-        '<div id="created" href="' + artist + ' target="_blank">' + createdName + '</div>' + 
+        '<div id="created"><a>Artysta:</a><br><a href="' + artist + ' target="_blank">' + createdName + '</a></div>' + 
         '<div id="def"><img id="shieldImg" src="client/img/Icons/shield.png"><div>'+def+'</div></div></div></div>';
 
     return innerTxt;
@@ -38,15 +39,16 @@ function loadCards(cards) {
 
 function choseCard(e)
 {
-    if (sessionStorage.getItem('card') != e.outerHTML) {
-        sessionStorage.setItem('card', e.outerHTML);
-        $('#atackPosition').css('display', 'block');
-        $('#defensPosition').css('display', 'block');
-    }
-    else {
-        sessionStorage.removeItem('card');
-        $('#atackPosition').css('display', 'none');
-        $('#defensPosition').css('display', 'none');
+    if ($('#opponentMove').attr('value') == 'true')
+    {
+        if (sessionStorage.getItem('card') != e.outerHTML) {
+            sessionStorage.setItem('card', e.outerHTML);
+            $('.positionButtons').css('display', 'block');
+        }
+        else {
+            sessionStorage.removeItem('card');
+            $('.positionButtons').css('display', 'none');
+        }
     }
 }
 
@@ -57,20 +59,25 @@ function setInPos(position)
         card: card,
         position: position
     });
+    var idNumber = card[card.search('IDS') + 3];
+    $('#IDS' + idNumber).parent().parent().remove();
 }
 
 
 socket.on('setTurn_Controller', function (turn) {
     if (turn.yourTurn)
     {       
-        //todo inna blokada    
+        $('#opponentMove').text('Tura: Twoja');  
+        $('#opponentMove').attr('value', 'true');
+        sessionStorage.removeItem('card');
     }
     else
     {
-        $('#atackPosition').css('display', 'none');
-        $('#defensPosition').css('display', 'none');
-        $('#opponentMove').css('display', 'block');
-    }    
+        $('#opponentMove').text('Tura: Przeciwnika');
+        $('#opponentMove').attr('value', 'false');
+        sessionStorage.removeItem('card');
+    }   
+    $('.positionButtons').css('display', 'none');
 });
 
 function closeBoard()

@@ -19,11 +19,11 @@ socket.on('createBoard', function (board) {
         if (board.board.table[i] !== 'undefined'){
             var card = board.board.table[i].card;
             if (board.board.table[i].owner == socket.id) {
-                $('#playerBoard').append(createCard(card.ID, card.Name, card.Cost, card.DmgValue, card.DefValue,
+                $('#playerBoard').append(createCardBoard(card.ID, card.Name, card.Cost, card.DmgValue, card.DefValue,
                     card.Image, card.Ability, card.createdBy, card.isSpy, board.board.table[i].position));
             }
             else{
-                $('#enemyPlayerBoard').append(createCard(card.ID, card.Name, card.Cost, card.DmgValue, card.DefValue,
+                $('#enemyPlayerBoard').append(createCardBoard(card.ID, card.Name, card.Cost, card.DmgValue, card.DefValue,
                     card.Image, card.Ability, card.createdBy, card.isSpy, board.board.table[i].position));              
             }
         }
@@ -77,13 +77,12 @@ socket.on('closeBoard', function () {
     $('#board').css('display', 'none');
 });
 
-function createCard(id, name, cost, dmg, def, img, abillity, artist, spy, position) {
+function createCardBoard(id, name, cost, dmg, def, img, abillity, artist, spy, position) {
     var innerTxt =
-        '<div class="card,'+ position +'" onclick="choseCard(this)"><div>' +
+        '<div class="cardBoard,'+ position +'" onclick="choseCard(this)"><div>' +
         '<div id="isSpy">' + spy + '</div>' +
         '<div class="name" id="IDS' + id + '">' + name + '</div> ' +
         '<img src="' + img + '" id="img">' +
-        '<div id="ability">' + abillity + '</div>' +
         '<div id="dmg">' + dmg + '</div> ' +
         '<div id="def">' + def + '</div> ' +
         '<a id="created" href="' + artist + '"></a> </div></div>';
