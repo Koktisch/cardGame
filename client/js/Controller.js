@@ -54,12 +54,19 @@ function choseCard(e)
 
 function setInPos(position)
 {
+    var i = 1;
     var card = sessionStorage.getItem('card');
+    var idNumber = "";
     socket.emit('addCardToBoard', {
         card: card,
-        position: position
+        position: position,
+        haveAnyCard: $('#boardLine').children().length != 0
     });
-    var idNumber = card[card.search('IDS') + 3];
+    while ($.isNumeric(card[card.search('IDS') + 2 + i]))
+    {
+        idNumber += card[card.search('IDS') + 2 + i];
+        i++;
+    }
     $('#IDS' + idNumber).parent().parent().remove();
 }
 

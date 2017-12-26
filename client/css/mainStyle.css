@@ -86,16 +86,6 @@ ul {
     height: 4%;
 }
 
-#enemyPlayerBoard {
-    width: 100%;
-    height: 48%;
-}
-
-#playerBoard {
-    width: 100%;
-    height: 48%;
-}
-
 #lose{
     display:none;
 }

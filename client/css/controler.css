@@ -96,14 +96,14 @@
     height: 100px;
     background-color: white;
 }
-.name {
+#inCard > .name {
     padding-left: 10px;
     float: left;
     width: 75%;
     height: 10%;
     font-size: 50px;
 }
-#imgCard {
+#inCard > #imgCard {
     margin-left: 10%;
     margin-right: 10%;
     height: 70%;
@@ -129,13 +129,13 @@
     height: 20%;
 }
 
-#isSpy {
+#inCard > #isSpy {
     float: right;
     width: 25%;
     height: 10%;
 }
 
-#def {
+#inCard > #def {
     position: relative;
     float: left;
     margin-left: 1%;
@@ -154,7 +154,7 @@
         text-shadow: 0 0 5px rgba(59, 159, 72, 0.95), 0 0 9px rgba(59, 159, 72, 0.95);
     }
 
-#dmg {
+#inCard > #dmg {
     position: relative;
     float: left;
     margin-left: 1%;
@@ -173,7 +173,7 @@
         text-shadow: 0 0 5px rgba(59, 159, 72, 0.95), 0 0 9px rgba(59, 159, 72, 0.95);
     }
 
-#created {
+#inCard > #created {
     float: left;
     width: 48%;
     text-align: center;

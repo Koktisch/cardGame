@@ -1,8 +1,8 @@
 socket.on('startGameBoard', function (startGameData) {
     $('#board').css('display', 'block');
     $('#priority').html(startGameData.startTxt);
-    $('#ownhp').html(startGameData.ownHP);
-    $('#enehp').html(startGameData.enemyHP);
+    $('#ownhp > .progress > .progress-bar').html(startGameData.ownHP);
+    $('#enehp > .progress > .progress-bar').html(startGameData.enemyHP);
     $('#priority').css('display', 'block');
     if (startGameData.start) {
            socket.emit('timer');  
@@ -11,54 +11,98 @@ socket.on('startGameBoard', function (startGameData) {
 
 socket.on('createBoard', function (board) {
     
-    $('#playerBoard').empty();
-    $('#enemyPlayerBoard').empty();
+    $('#enemyCardBoard').empty();
+    $('#ownCardBoard').empty();
 
     for (var i = 0; i < board.board.table.length; i++)
     {
         if (board.board.table[i] !== 'undefined'){
             var card = board.board.table[i].card;
             if (board.board.table[i].owner == socket.id) {
-                $('#playerBoard').append(createCardBoard(card.ID, card.Name, card.Cost, card.DmgValue, card.DefValue,
-                    card.Image, card.Ability, card.createdBy, card.isSpy, board.board.table[i].position));
+                $('#ownCardBoard').append(createCardBoard(card.ID, card.Cost, card.DmgValue, card.DefValue,
+                    card.Image, card.isSpy, board.board.table[i].position));
             }
             else{
-                $('#enemyPlayerBoard').append(createCardBoard(card.ID, card.Name, card.Cost, card.DmgValue, card.DefValue,
-                    card.Image, card.Ability, card.createdBy, card.isSpy, board.board.table[i].position));              
+                $('#enemyCardBoard').append(createCardBoard(card.ID, card.Cost, card.DmgValue, card.DefValue,
+                    card.Image, card.isSpy, board.board.table[i].position));              
             }
         }
     }
+
+    $('#timer').css('display', 'none');
+    $('#board > .progress').css('display', 'none');
 });
 
 socket.on('enemyDisconectedBoard', function () {
-    if (stTimer !== undefined)
-        stTimer.clearTimeout();
     $('#error').val('Utracono po³¹czenie z przeciwnikiem');
-    $('#playerBoard').empty();
-    $('#enemyPlayerBoard').empty();
+    $('#ownCardBoard').empty();
+    $('#enemyCardBoard').empty();
     $('#board').css('display', 'none');
 });
 
 socket.on('timer', function (time)
 {
     $('#timer').html(time.time);
-    if ($('#timer').attr('display') == 'none') {
-        $('#timer').css('disply', 'block');
-    }    
+
+    if (time.time == 30) {
+        $('#board > .progress > .progress-bar').css('width', "0%");
+        $('#board > .progress > .progress-bar').animate({ width: "100%" }, 30000);
+    }
+
+    if ($('#timer').css('display') == 'none') 
+        $('#timer').css('display', 'block');
+
+    if ($('#board > .progress').css('display') == 'none')
+        $('#board > .progress').css('display', 'block');
+
     if (time.changeTurn)
     {   
-        $('#timer').css('disply', 'none');
+        $('#timer').css('display', 'none');
+        $('#board > .progress').css('display', 'none');
     }
 });
 
 socket.on('setTurn_Board', function (turn) {    
-    $('#priority').html((turn.yourTurn == true ? 'Twój ruch' : 'Ruch przeciwnika'));
+    $('#priority').html((turn.yourTurn == true ? 'Twoja tura' : 'Tura przeciwnika'));
+    $('#board > .progress').css('display', 'none');
+    $('#timer').css('display', 'none');
 });
 
 
 socket.on('calculatedPoints', function (e) {
-    $('#ownhp').html(e.yourHP);
-    $('#enehp').html(e.enemyHP);
+    if ($('#ownhp > .progress > .progress-bar').text() > e.yourHP) {
+        $('#ownhp > .progress > .progress-bar').animate({ width: 100 - ((15 - e.yourHP) * 6.66) + '%' }, 700);
+        $('#ownhp > .progress > .progress-bar').text(e.yourHP);
+    }
+    else if ($('#ownhp > .progress > .progress-bar').text() < e.yourHP && e.yourHP < 15)
+    {
+        if ($('#ownhp > .progress > .progress-bar').css('width') + ((e.yourHP - $('#ownhp > .progress > .progress-bar').text()) * 6.66) > 100)
+            $('#ownhp > .progress > .progress-bar').animate({ width:'100%' }, 700);
+        $('#ownhp > .progress > .progress-bar').animate({ width: $('#ownhp > .progress > .progress-bar').css('width')  + ((e.yourHP - $('#ownhp > .progress > .progress-bar').text()) * 6.66) + '%' }, 700);
+        $('#ownhp > .progress > .progress-bar').text(e.yourHP);
+    }
+    else
+    {
+        $('#ownhp > .progress > .progress-bar').animate({ width: '100%' }, 700);
+        $('#ownhp > .progress > .progress-bar').text(e.yourHP);
+    }
+
+
+    if ($('#enehp > .progress > .progress-bar').text() > e.enemyHP) {
+        $('#enehp > .progress > .progress-bar').animate({ width: 100 - ((15 - e.enemyHP) * 6.66) + '%' }, 700);
+        $('#enehp > .progress > .progress-bar').text(e.enemyHP);
+    }
+    else if ($('#enehp > .progress > .progress-bar').text() < e.enemyHP && e.enemyHP < 15) {
+
+        if ($('#enehp > .progress > .progress-bar').css('width') + ((e.yourHP - $('#enehp > .progress > .progress-bar').text()) * 6.66) > 100)
+            $('#enehp > .progress > .progress-bar').animate({ width: '100%' }, 700);
+        $('#enehp > .progress > .progress-bar').animate({ width: $('#enehp > .progress > .progress-bar').css('width') + ((e.enemyHP - $('#enehp > .progress > .progress-bar').text()) * 6.66) + '%' }, 700);
+        $('#enehp > .progress > .progress-bar').text(e.enemyHP);
+    }
+    else {
+        $('#enehp > .progress > .progress-bar').animate({ width: '100%' }, 700);
+        $('#enehp > .progress > .progress-bar').text(e.enemyHP);
+    }
 
     if (e.ownHP < 0)
     {
@@ -67,6 +111,19 @@ socket.on('calculatedPoints', function (e) {
     else if (e.enemyHP < 0)
     {
         $('#lose').html('display', 'block');
+    }
+
+    if (e.passed)
+    {
+        if (e.ownHP > e.enemyHP) {
+            $('#win').css('display', 'block');
+        }
+        else if (e.ownHP < e.enemyHP) {
+            $('#lose').html('display', 'block');
+        }
+        else if (e.ownHP == e.enemyHP) {
+            $('#draw').html('display', 'block');
+        }
     }
 });
 
@@ -77,15 +134,24 @@ socket.on('closeBoard', function () {
     $('#board').css('display', 'none');
 });
 
-function createCardBoard(id, name, cost, dmg, def, img, abillity, artist, spy, position) {
-    var innerTxt =
-        '<div class="cardBoard,'+ position +'" onclick="choseCard(this)"><div>' +
-        '<div id="isSpy">' + spy + '</div>' +
-        '<div class="name" id="IDS' + id + '">' + name + '</div> ' +
-        '<img src="' + img + '" id="img">' +
-        '<div id="dmg">' + dmg + '</div> ' +
-        '<div id="def">' + def + '</div> ' +
-        '<a id="created" href="' + artist + '"></a> </div></div>';
-
+function createCardBoard(id, cost, dmg, def, img, spy, position) {
+    if (position == 'attack') {
+        var innerTxt =
+            '<div class="cardBoard ' + position + '" onclick="choseCard(this)"><div>' +
+            '<img id="isSpy" src="client/img/Icons/Eye_open.png">' +
+            '<img src="' + img + '" id="img">' +
+            '<div class="name" id="IDS' + id + '">' + cardsName[id] + '</div> '+
+            '<div id="val">' + dmg + '<img id="attackImg" src="client/img/Icons/attack.png"></div>';
+    }
+    else
+    {
+        var innerTxt =
+            '<div class="cardBoard ' + position + '" onclick="choseCard(this)"><div>' +
+            '<img id="isSpy" src="client/img/Icons/Eye_open.png">' +
+            '<img src="' + img + '" id="img">' +
+            '<div class="name" id="IDS' + id + '">' + cardsName[id] + '</div> ' +
+            '<div id="val">' + def + '<img id="shieldImg" src="client/img/Icons/shield.png"></div>';
+           
+    }
     return innerTxt;
 }

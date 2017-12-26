@@ -20,8 +20,11 @@ console.log('Server started');
 
 function timer(i, host) {
     i--;
-    SOCKET_LIST[host.firstPlayer.id].emit('timer', { time: i, changeTurn: (i == 0 ? true : false) });
-    SOCKET_LIST[host.secondPlayer.id].emit('timer', { time: i, changeTurn: (i == 0 ? true : false) });
+    if (SOCKET_LIST[host.firstPlayer.id] != 'undefined' && host.firstPlayer != 'undefined' && SOCKET_LIST[host.secondPlayer.id] != 'undefined' && host.secondPlayer != 'undefined')
+    {
+        SOCKET_LIST[host.firstPlayer.id].emit('timer', { time: i, changeTurn: (i == 0 ? true : false) });
+        SOCKET_LIST[host.secondPlayer.id].emit('timer', { time: i, changeTurn: (i == 0 ? true : false) });
+    }
     if (i == 0) {
         host.clearTimer();
         changeTurn(host);
@@ -91,7 +94,9 @@ var BOARD = function (data) {
         host: data,
         table: [],
         ownHP: 15,
-        enemyHP: 15
+        enemyHP: 15,
+        firstPlayerPass: false,
+        secondPlayerPass: false
     }   
 
     board.addCard = function (card, player, position) {
@@ -150,8 +155,8 @@ var HOST = function (id, player, data) {
 
     party.setTimer = function () {
         party.timer = setTimeout(function () {
-            timer(11, party);
-        }, 80000);
+            timer(31, party);
+        }, 60000);
     }
 
     party.clearTimer = function () {
@@ -183,7 +188,7 @@ var HOST = function (id, player, data) {
             if (!party.playerTurn) 
                 party.setPlayerTurn(party.firstPlayer.id);                
             
-            SOCKET_LIST[party.secondPlayer.id].emit('startGameBoard', { game: party, startTxt: 'Zaczynasz', start: true, ownHP: party.board.ownHP, enemyHP: party.board.enemyHP });
+            SOCKET_LIST[party.secondPlayer.id].emit('startGameBoard', { game: party, startTxt: 'Twoja tura', start: true, ownHP: party.board.ownHP, enemyHP: party.board.enemyHP });
             SOCKET_LIST[party.secondPlayer.controller.controllerID].emit('startGameController', { game: party, deck: deck, start: true });
             SOCKET_LIST[party.firstPlayer.id].emit('startGameBoard', { game: party, startTxt: 'Rozpoczyna przeciwnik', start: false, ownHP: party.board.ownHP, enemyHP: party.board.enemyHP});
             SOCKET_LIST[party.firstPlayer.controller.controllerID].emit('startGameController', { game: party, deck: deck, start: false });
@@ -193,7 +198,7 @@ var HOST = function (id, player, data) {
             if (!party.playerTurn)
                 party.setPlayerTurn(party.secondPlayer.id);
 
-            SOCKET_LIST[party.firstPlayer.id].emit('startGameBoard', { game: party, startTxt: 'Zaczynasz', start: true, ownHP: party.board.ownHP, enemyHP: party.board.enemyHP });
+            SOCKET_LIST[party.firstPlayer.id].emit('startGameBoard', { game: party, startTxt: 'Twoja tura', start: true, ownHP: party.board.ownHP, enemyHP: party.board.enemyHP });
             SOCKET_LIST[party.firstPlayer.controller.controllerID].emit('startGameController', { game: party, deck: deck, start: true });
             SOCKET_LIST[party.secondPlayer.id].emit('startGameBoard', { game: party, startTxt: 'Rozpoczyna przeciwnik', start: false, ownHP: party.board.ownHP, enemyHP: party.board.enemyHP });
             SOCKET_LIST[party.secondPlayer.controller.controllerID].emit('startGameController', { game: party, deck: deck, start: false });
@@ -252,19 +257,13 @@ var CARD = function () {
                 return card.volkolak();
 
             case 11:
-                return card.vuzhalka();
-
-            case 12:
                 return card.zlata_maja();
-
-            case 13:
-                return card.zmey_gorynych();
         }
     }
 
     card.Cholera = function () {
         card.ID = 1;
-        card.Name = 'Cholera';
+        card.Name = 'Zaraza';
         card.DmgValue = 2;
         card.DefValue = 8;
         card.Text = '';
@@ -608,6 +607,12 @@ io.sockets.on('connection', function (socket) {
     socket.on('addCardToBoard', function (card) {
         var host = HostGames_LIST[PLAYER_LIST[CONTROLERS_LIST[socket.id].userID].host];
         var board = BOARDS_LIST[host.board.host];
+
+        if (host.firstPlayer.controller.controllerID == socket.id)
+            board.firstPlayerPass = card.haveAnyCard;
+        else if (host.secondPlayer.controller.controllerID == socket.id)
+            board.secondPlayerPass = card.haveAnyCard;
+
         board.addCard(card.card, host.firstPlayer.controller.controllerID == socket.id ? host.firstPlayer.id : host.secondPlayer.id, card.position);
         BOARDS_LIST[host.firstPlayer.id] = board;
 
@@ -651,9 +656,13 @@ io.sockets.on('connection', function (socket) {
                     enHP = board.enemyHP + board.table[i].card.DefValue;
             }
         }
-        
-        SOCKET_LIST[host.firstPlayer.id].emit('calculatedPoints', { yourHP: (onHP > 15 ? board.ownHP : onHP), enemyHP: (enHP > 15 ? board.enemyHP : enHP) });
-        SOCKET_LIST[host.secondPlayer.id].emit('calculatedPoints', { enemyHP: (onHP > 15 ? board.ownHP : onHP), yourHP: (enHP > 15 ? board.enemyHP : enHP) });
+        if (host.firstPlayerPass && host.secondPlayerPass)
+        {
+            host.clearTimer();
+        }
+
+        SOCKET_LIST[host.firstPlayer.id].emit('calculatedPoints', { yourHP: (onHP > 15 ? board.ownHP : onHP), enemyHP: (enHP > 15 ? board.enemyHP : enHP), passed: host.firstPlayerPass && host.secondPlayerPass });
+        SOCKET_LIST[host.secondPlayer.id].emit('calculatedPoints', { enemyHP: (onHP > 15 ? board.ownHP : onHP), yourHP: (enHP > 15 ? board.enemyHP : enHP), passed: host.firstPlayerPass && host.secondPlayerPass });
     }
 
     socket.on('closeGame', function () {

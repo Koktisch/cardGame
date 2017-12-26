@@ -1,6 +1,6 @@
 ﻿<!DOCTYPE html>
 
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<html lang="pl" xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8" />
     <title></title>
@@ -15,8 +15,7 @@
         var cardsName = Object.freeze({
             "1": "Zaraza", "2": "Syrena", "3": "Księżycowy jeździec", "4": "Belobog", "5": "Chernobog", "6": "Domovov",
             "7": "Hybrid", "8": "Morana: Wiosna", "9": "Morana: Zima", "10": "Wiłkołak", "11": "Złota Maja"
-        })
-
+        })       
 
             $(document).ready(function () {
                 $(document).keypress(function (e) {
@@ -290,13 +289,30 @@
         <div id="lose">
             <p>Przegrałeś</p>
         </div>
-        <div id="priority"></div>
-        <div id="ownhp"></div>
-        <div id="enehp"></div>
+        <div id="draw">
+            <p>Remis</p>
+        </div>
+        <div id="priority">
+        </div>
+        <div class="progress">
+            <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%"></div>
+        </div>
         <div id="timer"></div>
         <div id="enemyPlayerBoard">
+            <div id="enehp">
+                <div class="progress">
+                    <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:100%"></div>
+                </div>
+                <div id="enemyCardBoard"></div>
+            </div>
         </div>
         <div id="playerBoard">
+            <div id="ownhp">
+                <div class="progress">
+                    <div class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:100%"></div>
+                </div>
+                <div id="ownCardBoard"></div>
+            </div>            
         </div>
     </div>
 </body>
