@@ -75,51 +75,36 @@ socket.on('setTurn_Board', function (turn) {
 
 
 socket.on('calculatedPoints', function (e) {
-    if ($('#ownhp > .progress > .progress-bar').text() > e.yourHP) {
-        $('#ownhp > .progress > .progress-bar').animate({ width: 100 - ((15 - e.yourHP) * 6.66) + '%' }, 700);
+    if (e.yourHP >= 15) {
         $('#ownhp > .progress > .progress-bar').text(e.yourHP);
-    }
-    else if ($('#ownhp > .progress > .progress-bar').text() < e.yourHP && e.yourHP < 15)
-    {
-        if ($('#ownhp > .progress > .progress-bar').css('width') + ((e.yourHP - $('#ownhp > .progress > .progress-bar').text()) * 6.66) > 100)
-            $('#ownhp > .progress > .progress-bar').animate({ width:'100%' }, 700);
-        $('#ownhp > .progress > .progress-bar').animate({ width: $('#ownhp > .progress > .progress-bar').css('width')  + ((e.yourHP - $('#ownhp > .progress > .progress-bar').text()) * 6.66) + '%' }, 700);
-        $('#ownhp > .progress > .progress-bar').text(e.yourHP);
+        $('#ownhp > .progress > .progress-bar').css('width', '100%');
     }
     else
     {
-        $('#ownhp > .progress > .progress-bar').animate({ width: '100%' }, 700);
+        $('#ownhp > .progress > .progress-bar').css('width', (100 - ((15 - e.yourHP) * 6.66)) + '%');
         $('#ownhp > .progress > .progress-bar').text(e.yourHP);
     }
 
-
-    if ($('#enehp > .progress > .progress-bar').text() > e.enemyHP) {
-        $('#enehp > .progress > .progress-bar').animate({ width: 100 - ((15 - e.enemyHP) * 6.66) + '%' }, 700);
+    if (e.enemyHP >= 15) {
         $('#enehp > .progress > .progress-bar').text(e.enemyHP);
-    }
-    else if ($('#enehp > .progress > .progress-bar').text() < e.enemyHP && e.enemyHP < 15) {
-
-        if ($('#enehp > .progress > .progress-bar').css('width') + ((e.yourHP - $('#enehp > .progress > .progress-bar').text()) * 6.66) > 100)
-            $('#enehp > .progress > .progress-bar').animate({ width: '100%' }, 700);
-        $('#enehp > .progress > .progress-bar').animate({ width: $('#enehp > .progress > .progress-bar').css('width') + ((e.enemyHP - $('#enehp > .progress > .progress-bar').text()) * 6.66) + '%' }, 700);
-        $('#enehp > .progress > .progress-bar').text(e.enemyHP);
+        $('#enehp > .progress > .progress-bar').css('width', '100%');
     }
     else {
-        $('#enehp > .progress > .progress-bar').animate({ width: '100%' }, 700);
+        $('#enehp > .progress > .progress-bar').css('width', (100 - ((15 - e.enemyHP) * 6.66)) + '%');
         $('#enehp > .progress > .progress-bar').text(e.enemyHP);
     }
 
-    if (e.passed)
+    if (e.passed || e.enemyHP <= 0 || e.yourHP <= 0)
     {
-        if (e.ownHP > e.enemyHP) {
+        if (e.yourHP > e.enemyHP) {
             $('#win').css('display', 'block');
             $('#blockEndGame').css('display', 'block');
         }
-        else if (e.ownHP < e.enemyHP) {
+        else if (e.yourHP < e.enemyHP) {
             $('#lose').html('display', 'block');
             $('#blockEndGame').css('display', 'block');
         }
-        else if (e.ownHP == e.enemyHP) {
+        else if (e.yourHP == e.enemyHP) {
             $('#draw').html('display', 'block');
             $('#blockEndGame').css('display', 'block');
         }

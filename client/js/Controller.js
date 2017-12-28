@@ -90,6 +90,9 @@ socket.on('setTurn_Controller', function (turn) {
 function pass()
 {
     socket.emit('pass', {});
+    $('#opponentMove').text('Spasowano');
+    $('.positionButtons').css('display', 'none');
+
 }
 
 socket.on('enemyDisconectedController', function (obj) {
