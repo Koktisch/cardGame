@@ -73,6 +73,8 @@ function joinLobby(e) {
     }
     else {
         socket.emit('joinGame', { ID: idStr });
+        if ($('#' + socket.id))
+            $('#' + socket.id).click();
     }
 };
 
@@ -86,7 +88,7 @@ function leaveLobby() {
 
 function getControllerCode() {
     socket.emit('getControllerCode', {});
-
+    
     socket.on('getControllerCodeRes', function (code) {
         $('#code').html(code);
         $('#controllerCode').css('display', 'block');

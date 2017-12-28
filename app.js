@@ -25,7 +25,15 @@ function timer(i, host) {
         SOCKET_LIST[host.firstPlayer.id].emit('timer', { time: i, changeTurn: (i == 0 ? true : false) });
         SOCKET_LIST[host.secondPlayer.id].emit('timer', { time: i, changeTurn: (i == 0 ? true : false) });
     }
-    if (i == 0) {
+
+    if (host.stopTimer)
+    {
+        host.clearTimer();
+        SOCKET_LIST[host.firstPlayer.id].emit('clearTimer', { });
+        SOCKET_LIST[host.secondPlayer.id].emit('clearTimer', {});
+        host.setTimer();
+    }
+    else if (i == 0) {
         host.clearTimer();
         changeTurn(host);
     }
@@ -53,7 +61,7 @@ function changeTurn(host) {
         SOCKET_LIST[host.secondPlayer.controller.controllerID].emit('setTurn_Controller', { yourTurn: true });
 
     }
-
+    host.clearTimer();
     host.setTimer();
 }
 
@@ -145,7 +153,8 @@ var HOST = function (id, player, data) {
         partyStatus: data.partyStatus ,
         password: data.password,
         playerTurn: null,
-        timer: null
+        timer: null,
+        stopTimer: false
     }
 
     party.createParty = function () {
@@ -154,6 +163,7 @@ var HOST = function (id, player, data) {
     }
 
     party.setTimer = function () {
+        party.stopTimer = false;
         party.timer = setTimeout(function () {
             timer(31, party);
         }, 60000);
@@ -480,7 +490,6 @@ io.sockets.on('connection', function (socket) {
                         SOCKET_LIST[HostGames_LIST[PLAYER_LIST[socket.id].host].secondPlayer.controller.controllerID].emit('enemyDisconectedController', { val: true });
                     }
                     SOCKET_LIST[HostGames_LIST[PLAYER_LIST[socket.id].host].firstPlayer.id].emit('enemyDisconectedBoard', {});
-                    //todo przekazanie roz³aczenia kontrolera
                     delete CONTROLERS_LIST[HostGames_LIST[PLAYER_LIST[socket.id].host].firstPlayer.controller.controllerID];
                     delete HostGames_LIST[PLAYER_LIST[socket.id].host];
 
@@ -492,7 +501,6 @@ io.sockets.on('connection', function (socket) {
                         SOCKET_LIST[HostGames_LIST[PLAYER_LIST[socket.id].host].firstPlayer.controller.controllerID].emit('enemyDisconectedController', { val: true });
                     }
                     SOCKET_LIST[HostGames_LIST[PLAYER_LIST[socket.id].host].secondPlayer.id].emit('enemyDisconectedBoard', {});
-                    //todo przekazanie roz³aczenia kontrolera
                     delete CONTROLERS_LIST[HostGames_LIST[PLAYER_LIST[socket.id].host].secondPlayer.controller.controllerID];
                     delete HostGames_LIST[PLAYER_LIST[socket.id].host];
                 }
@@ -603,6 +611,15 @@ io.sockets.on('connection', function (socket) {
         });
    // }
 
+        socket.on('pass', function () {
+            var host = HostGames_LIST[PLAYER_LIST[CONTROLERS_LIST[socket.id].userID].host];
+            var board = BOARDS_LIST[host.board.host];
+            if (host.firstPlayer.controller.controllerID == socket.id)
+                board.firstPlayerPass = card.haveAnyCard;
+            else if (host.secondPlayer.controller.controllerID == socket.id)
+                board.secondPlayerPass = card.haveAnyCard;
+        });
+
     //Board
     socket.on('addCardToBoard', function (card) {
         var host = HostGames_LIST[PLAYER_LIST[CONTROLERS_LIST[socket.id].userID].host];
@@ -621,9 +638,20 @@ io.sockets.on('connection', function (socket) {
             SOCKET_LIST[host.secondPlayer.id].emit('createBoard', { board: board });
             calculatePoints(host);
             host.clearTimer();
+            host.stopTimer = true;
             changeTurn(host);
         }
 
+        });
+
+    socket.on('closedBoard', function () {
+        var host = HostGames_LIST[PLAYER_LIST[CONTROLERS_LIST[socket.id].userID].host];
+        host.stopTimer = true;
+        host.clearTimer();
+        if (host.firstPlayer.id == socket.id)
+            SOCKET_LIST[host.secondPlayer.id].emit('enemyCloseBoard', {});
+        else
+            SOCKET_LIST[host.secondPlayer.id].emit('enemyCloseBoard', {});
     });
 
     //Timer
@@ -644,21 +672,22 @@ io.sockets.on('connection', function (socket) {
             if (board.table[i].owner == host.firstPlayer.id)
             {
                 if (board.table[i].position == 'attack')
-                    enHP = board.enemyHP - board.table[i].card.DmgValue;
+                    enHP = enHP - board.table[i].card.DmgValue;
                 else
-                    onHP = board.ownHP + board.table[i].card.DefValue;
+                    onHP = onHP + board.table[i].card.DefValue;
             }
             else
             {
                 if (board.table[i].position == 'attack')
-                    onHP = board.ownHP - board.table[i].card.DmgValue;
+                    onHP = onHP - board.table[i].card.DmgValue;
                 else
-                    enHP = board.enemyHP + board.table[i].card.DefValue;
+                    enHP = enHP + board.table[i].card.DefValue;
             }
         }
         if (host.firstPlayerPass && host.secondPlayerPass)
         {
             host.clearTimer();
+            host.removeGame();
         }
 
         SOCKET_LIST[host.firstPlayer.id].emit('calculatedPoints', { yourHP: (onHP > 15 ? board.ownHP : onHP), enemyHP: (enHP > 15 ? board.enemyHP : enHP), passed: host.firstPlayerPass && host.secondPlayerPass });

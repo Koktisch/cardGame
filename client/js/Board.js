@@ -38,6 +38,11 @@ socket.on('enemyDisconectedBoard', function () {
     $('#ownCardBoard').empty();
     $('#enemyCardBoard').empty();
     $('#board').css('display', 'none');
+}); 
+
+socket.on('clearTimer', function () {
+    $('#timer').css('display', 'none');
+    $('#board > .progress').css('display', 'none');
 });
 
 socket.on('timer', function (time)
@@ -104,25 +109,19 @@ socket.on('calculatedPoints', function (e) {
         $('#enehp > .progress > .progress-bar').text(e.enemyHP);
     }
 
-    if (e.ownHP < 0)
-    {
-        $('#win').css('display', 'block');
-    }
-    else if (e.enemyHP < 0)
-    {
-        $('#lose').html('display', 'block');
-    }
-
     if (e.passed)
     {
         if (e.ownHP > e.enemyHP) {
             $('#win').css('display', 'block');
+            $('#blockEndGame').css('display', 'block');
         }
         else if (e.ownHP < e.enemyHP) {
             $('#lose').html('display', 'block');
+            $('#blockEndGame').css('display', 'block');
         }
         else if (e.ownHP == e.enemyHP) {
             $('#draw').html('display', 'block');
+            $('#blockEndGame').css('display', 'block');
         }
     }
 });
@@ -131,7 +130,9 @@ socket.on('closeBoard', function () {
 
     $('#lose').html('display', 'none');
     $('#win').css('display', 'none');
+    $('#draw').css('display', 'none');
     $('#board').css('display', 'none');
+    $('#blockEndGame').css('display', 'none');
 });
 
 function createCardBoard(id, cost, dmg, def, img, spy, position) {
@@ -154,4 +155,32 @@ function createCardBoard(id, cost, dmg, def, img, spy, position) {
            
     }
     return innerTxt;
+}
+
+socket.on('enemyCloseBoard', function () {
+    $('#blockEndGame').css('display', 'block');
+    $('#win').css('display', 'block');
+});
+
+function closeBoard() {
+    socket.emit('closedBoard', {});
+    $('#blockEndGame').css('display', 'none');
+    $('#ownCardBoard').empty();
+    $('#enemyCardBoard').empty();
+    $('#board').css('display', 'none');
+}
+
+function winCloseBtn() {
+    $('#win').css('display', 'none');
+    closeBoard();
+}
+
+function loseCloseBtn() {
+    $('#lose').css('display', 'none');
+    closeBoard();
+}
+
+function drawloseBtn() {
+    $('#draw').css('display', 'none');
+    closeBoard();
 }

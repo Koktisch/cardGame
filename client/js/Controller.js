@@ -87,10 +87,9 @@ socket.on('setTurn_Controller', function (turn) {
     $('.positionButtons').css('display', 'none');
 });
 
-function closeBoard()
+function pass()
 {
-    $('#closeGame').css('display', 'block');
-    socket.emit('closeGame', {});
+    socket.emit('pass', {});
 }
 
 socket.on('enemyDisconectedController', function (obj) {

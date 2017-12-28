@@ -269,6 +269,9 @@
         <div id="controlerBoard">
             <div id="opponentMove">Tura: </div>
             <div id="boardLine"></div>
+            <div id="pass">
+                <button onclick="pass()">Pass</button>
+            </div>
         </div>
 
         <div class="positionButtons">
@@ -276,21 +279,34 @@
         </div>
         <div id="divDef" class="positionButtons">
             <img id="defensPosition" src="client/img/Icons/shield.png" alt="Broń!" onclick="setInPos('defense')">
-        </div>
-        <div id="closeGame">
-            <button onclick="closeBoard()">Zamknij</button>
-        </div>
+        </div>        
     </div>
 
     <div id="board">
+        <button type="button" class="close" aria-label="Close" onclick="disconnectBoard();" style="position: absolute;z-index: 2000;right: 0;">
+            <span aria-hidden="true">×</span>
+        </button>
+        <div id="blockEndGame"></div>
         <div id="win">
-            <p>Wygrałeś</p>            
+            <button type="button" class="close" aria-label="Close" onclick="winCloseBtn();">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <p>Wygrałeś</p>   
+            <img id="leftFlag" class="flag"  src="client/img/Icons/flags.png">
+            <img id="rightFlag" class="flag"  src="client/img/Icons/flags.png">
         </div>
         <div id="lose">
+            <button type="button" class="close" aria-label="Close" onclick="loseCloseBtn();">
+                <span aria-hidden="true">&times;</span>
+            </button>
             <p>Przegrałeś</p>
         </div>
         <div id="draw">
+            <button type="button" class="close" aria-label="Close" onclick="drawCloseBtn();">
+                <span aria-hidden="true">&times;</span>
+            </button>
             <p>Remis</p>
+            <img id="centerFlag" class="flag" src="client/img/Icons/flags.png">
         </div>
         <div id="priority">
         </div>
