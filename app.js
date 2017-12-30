@@ -45,22 +45,35 @@ function timer(i, host) {
 }
 
 function changeTurn(host) {
+    var board = BOARDS_LIST[host.id];
     if (host.playerTurn == host.firstPlayer.id) {
-        host.setPlayerTurn(host.secondPlayer.id);
-
-        SOCKET_LIST[host.firstPlayer.id].emit('setTurn_Board', { yourTurn: true });
-        SOCKET_LIST[host.secondPlayer.id].emit('setTurn_Board', { yourTurn: false });
-        SOCKET_LIST[host.firstPlayer.controller.controllerID].emit('setTurn_Controller', { yourTurn: true });
-        SOCKET_LIST[host.secondPlayer.controller.controllerID].emit('setTurn_Controller', { yourTurn: false });
-
+        if (!board.secondPlayerPass) {
+            host.setPlayerTurn(host.secondPlayer.id);
+            SOCKET_LIST[host.firstPlayer.id].emit('setTurn_Board', { yourTurn: true });
+            SOCKET_LIST[host.secondPlayer.id].emit('setTurn_Board', { yourTurn: false });
+            SOCKET_LIST[host.firstPlayer.controller.controllerID].emit('setTurn_Controller', { yourTurn: true });
+            SOCKET_LIST[host.secondPlayer.controller.controllerID].emit('setTurn_Controller', { yourTurn: false });
+        }
+        else
+        {
+            SOCKET_LIST[host.firstPlayer.id].emit('setTurn_Board', { yourTurn: true });          
+            SOCKET_LIST[host.firstPlayer.controller.controllerID].emit('setTurn_Controller', { yourTurn: true });
+        }
     }
     else if (host.playerTurn == host.secondPlayer.id) {
-        host.setPlayerTurn(host.firstPlayer.id);
-        SOCKET_LIST[host.firstPlayer.id].emit('setTurn_Board', { yourTurn: false });
-        SOCKET_LIST[host.secondPlayer.id].emit('setTurn_Board', { yourTurn: true });
-        SOCKET_LIST[host.firstPlayer.controller.controllerID].emit('setTurn_Controller', { yourTurn: false });
-        SOCKET_LIST[host.secondPlayer.controller.controllerID].emit('setTurn_Controller', { yourTurn: true });
+        if (!board.firstPlayerPass) {
+            host.setPlayerTurn(host.firstPlayer.id);
 
+            SOCKET_LIST[host.firstPlayer.id].emit('setTurn_Board', { yourTurn: false });
+            SOCKET_LIST[host.secondPlayer.id].emit('setTurn_Board', { yourTurn: true });
+            SOCKET_LIST[host.firstPlayer.controller.controllerID].emit('setTurn_Controller', { yourTurn: false });
+            SOCKET_LIST[host.secondPlayer.controller.controllerID].emit('setTurn_Controller', { yourTurn: true });
+        }
+        else
+        {
+            SOCKET_LIST[host.secondPlayer.id].emit('setTurn_Board', { yourTurn: true });
+            SOCKET_LIST[host.secondPlayer.controller.controllerID].emit('setTurn_Controller', { yourTurn: true });
+        }
     }
     host.clearTimer();
     host.setTimer();
@@ -618,7 +631,9 @@ io.sockets.on('connection', function (socket) {
                 board.firstPlayerPass = true;
             else if (host.secondPlayer.controller.controllerID == socket.id)
                 board.secondPlayerPass = true;
-            changeTurn(host);
+
+            if (board.firstPlayerPass && board.secondPlayerPass)
+                changeTurn(host);
             calculatePoints(host);
         });
 
@@ -692,18 +707,20 @@ io.sockets.on('connection', function (socket) {
                     enHP = enHP + board.table[i].card.DefValue;
             }
         }
-        if (board.firstPlayerPass && board.secondPlayerPass || onHP <= 0 || enHP <= 0)
-        {
-            host.clearTimer();
-            host.removeGame();
-        }
 
         SOCKET_LIST[host.firstPlayer.id].emit('calculatedPoints', { yourHP: (onHP > 15 ? board.ownHP : onHP), enemyHP: (enHP > 15 ? board.enemyHP : enHP), passed: board.firstPlayerPass && board.secondPlayerPass });
         SOCKET_LIST[host.secondPlayer.id].emit('calculatedPoints', { enemyHP: (onHP > 15 ? board.ownHP : onHP), yourHP: (enHP > 15 ? board.enemyHP : enHP), passed: board.firstPlayerPass && board.secondPlayerPass });
+
+        if (board.firstPlayerPass && board.secondPlayerPass || onHP <= 0 || enHP <= 0) {
+            SOCKET_LIST[host.firstPlayer.controller.controllerID].emit('showResualt', { yourHP: (onHP > 15 ? board.ownHP : onHP), enemyHP: (enHP > 15 ? board.enemyHP : enHP) });
+            SOCKET_LIST[host.secondPlayer.controller.controllerID].emit('showResualt', { enemyHP: (onHP > 15 ? board.ownHP : onHP), yourHP: (enHP > 15 ? board.enemyHP : enHP) });
+            host.clearTimer();
+            removeGame();
+        }
     }
 
     socket.on('closeGame', function () {
-        SOCKET_LIST[CONTROLERS_LIST[socket.id].userID].emit('closeBoard',{});
+        SOCKET_LIST[PLAYER_LIST[socket.id].controller.controllerID].emit('closeBoard', {});
     });
 
 });

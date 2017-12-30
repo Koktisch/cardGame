@@ -101,11 +101,11 @@ socket.on('calculatedPoints', function (e) {
             $('#blockEndGame').css('display', 'block');
         }
         else if (e.yourHP < e.enemyHP) {
-            $('#lose').html('display', 'block');
+            $('#lose').css('display', 'block');
             $('#blockEndGame').css('display', 'block');
         }
         else if (e.yourHP == e.enemyHP) {
-            $('#draw').html('display', 'block');
+            $('#draw').css('display', 'block');
             $('#blockEndGame').css('display', 'block');
         }
     }
@@ -153,19 +153,31 @@ function closeBoard() {
     $('#ownCardBoard').empty();
     $('#enemyCardBoard').empty();
     $('#board').css('display', 'none');
-}
+} 
 
 function winCloseBtn() {
+    socket.emit('closeGame', {});
     $('#win').css('display', 'none');
-    closeBoard();
+    $('#blockEndGame').css('display', 'none');
+    $('#ownCardBoard').empty();
+    $('#enemyCardBoard').empty();
+    $('#board').css('display', 'none');
 }
 
 function loseCloseBtn() {
+    socket.emit('closeGame', {});
     $('#lose').css('display', 'none');
-    closeBoard();
+    $('#blockEndGame').css('display', 'none');
+    $('#ownCardBoard').empty();
+    $('#enemyCardBoard').empty();
+    $('#board').css('display', 'none');
 }
 
-function drawloseBtn() {
+function drawCloseBtn() {
+    socket.emit('closeGame', {});
     $('#draw').css('display', 'none');
-    closeBoard();
+    $('#blockEndGame').css('display', 'none');
+    $('#ownCardBoard').empty();
+    $('#enemyCardBoard').empty();
+    $('#board').css('display', 'none');
 }

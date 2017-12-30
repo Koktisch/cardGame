@@ -8,6 +8,82 @@
     white-space: nowrap;
     display: none;
 }
+
+#resualt 
+{
+    width:100%;
+    height:100%;
+    position:absolute;
+    display: none;
+    z-index:2000;
+}
+#winController {
+    display: none;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    z-index: 36000;
+    background-color: #3b9f48f2;
+    text-align: center;
+}
+
+    #winController > p {
+        width: 100%;
+        height: 50%;
+        position: absolute;
+        bottom: 0;
+        font-size: 110px;
+    }
+
+    #winController > #centerFlag {
+        width: 22%;
+    }
+
+
+#drawController {
+    display: none;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    z-index: 36000;    
+    background-color: orange;
+    text-align: center;
+}
+
+    #drawController > p {
+        width: 100%;
+        height: 50%;
+        position: absolute;
+        bottom: 0;
+        font-size: 110px;
+    }
+
+    #drawController > #centerFlag {
+        width: 22%;
+    }
+
+#loseController {
+    display: none;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    z-index: 36000;
+    background-color: red;
+    text-align: center;
+}
+
+    #loseController > p {
+        width: 100%;
+        height: 50%;
+        position: absolute;
+        bottom: 0;
+        font-size: 110px;
+    }
+
+    #loseController > #centerFlag {
+        width: 22%;
+    }
+
 #pass {
     width: 100%;
     height: 70px;

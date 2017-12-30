@@ -74,14 +74,18 @@ function setInPos(position)
 socket.on('setTurn_Controller', function (turn) {
     if (turn.yourTurn)
     {       
-        $('#opponentMove').text('Tura: Twoja');  
-        $('#opponentMove').attr('value', 'true');
+        if ($('#opponentMove').text() != 'Spasowano') {
+            $('#opponentMove').text('Tura: Twoja');
+            $('#opponentMove').attr('value', 'true');
+        }
         sessionStorage.removeItem('card');
     }
     else
     {
-        $('#opponentMove').text('Tura: Przeciwnika');
-        $('#opponentMove').attr('value', 'false');
+        if ($('#opponentMove').text() != 'Spasowano') {
+            $('#opponentMove').text('Tura: Przeciwnika');
+            $('#opponentMove').attr('value', 'false');
+        }
         sessionStorage.removeItem('card');
     }   
     $('.positionButtons').css('display', 'none');
@@ -107,5 +111,25 @@ socket.on('enemyDisconectedController', function (obj) {
         window.open('', '_parent', '');
         window.close();
     }
+});
+
+socket.on('closeBoard', function () {
+    $('#waitingBox').css('display', 'block');
+    $('#resualt').css('display', 'none');
+    $('#winController').css('display', 'none');
+    $('#loseController').css('display', 'none');
+    $('#drawController').css('display', 'none');
+});
+
+socket.on('showResualt', function (obj) {
+    $('#resualt').css('display', 'block'); 
+    $('#boardLine').empty();
+    $('#controlerBoard').css('display', 'none'); 
+    if (obj.yourHP > obj.enemyHP)
+        $('#winController').css('display', 'block');
+    else if (obj.yourHP < obj.enemyHP)
+        $('#loseController').css('display', 'block');
+    else
+        $('#drawController').css('display', 'block');
 });
 

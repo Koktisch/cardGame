@@ -87,6 +87,11 @@
 #ownCardBoard {
     height: 75%;
 }
+
+#winController > .flag {
+    width: 20%;
+}
+
 #playerBoard {
     width: 100%;
     position: absolute;
@@ -161,54 +166,12 @@
             z-index: 2000;
         }
 
-#draw {
-    display: none;
-    width: 300px;
-    height: 300px;
-    position: absolute;
-    z-index: 3000;
-    background-color: darkorange;
-}
-#lose {
-    display: none;
-    width: 300px;
-    height: 300px;
-    position: absolute;
-    z-index: 3000;
-    background-color: red;
-}
 #win {
     display: none;
     width: 300px;
     height: 230px;
     position: absolute;
-    z-index: 3000;
-    top: 25%;
-    background-color: #3b9f48f2;
-    border-radius: 25px;
-    left: 45%;
-    text-align: center;
-    right: 45%;
-}
-
-    #win > p {
-        padding-top: 50px;
-        font-size: 30px;
-        padding-bottom: 10px;
-        color: white;
-    }
-
-    #win > .close {
-        padding-right: 10px;
-        padding-top: 5px;
-    }
-
-#win {
-    display: none;
-    width: 300px;
-    height: 230px;
-    position: absolute;
-    z-index: 3000;
+    z-index: 36000;
     top: 25%;
     background-color: #3b9f48f2;
     border-radius: 25px;
@@ -234,7 +197,7 @@
     width: 300px;
     height: 230px;
     position: absolute;
-    z-index: 3000;
+    z-index: 36000;
     top: 25%;
     background-color: red;
     border-radius: 25px;
@@ -260,7 +223,7 @@
     width: 300px;
     height: 230px;
     position: absolute;
-    z-index: 3000;
+    z-index: 36000;
     top: 25%;
     background-color: orange;
     border-radius: 25px;
