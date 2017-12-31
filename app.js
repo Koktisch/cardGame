@@ -230,7 +230,7 @@ var HOST = function (id, player, data) {
             SOCKET_LIST[party.secondPlayer.id].emit('startGameBoard', { startTxt: 'Twoja tura', start: true, ownHP: party.board.ownHP, enemyHP: party.board.enemyHP });
             SOCKET_LIST[party.secondPlayer.controller.controllerID].emit('startGameController', { deck: deck, start: true });
             SOCKET_LIST[party.firstPlayer.id].emit('startGameBoard', { startTxt: 'Rozpoczyna przeciwnik', start: false, ownHP: party.board.ownHP, enemyHP: party.board.enemyHP});
-            SOCKET_LIST[party.firstPlayer.controller.controllerID].emit('startGameController', { game: stringify(party), deck: deck, start: false });
+            SOCKET_LIST[party.firstPlayer.controller.controllerID].emit('startGameController', { deck: deck, start: false });
         }
         else {
 
