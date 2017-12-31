@@ -89,6 +89,7 @@
     height: 70px;
     position: absolute;
     bottom: 0px;
+    display:none;
 }
 
     #pass > button {
@@ -136,6 +137,10 @@
     align-self: center;
     border-radius: 30px;
 }
+
+    .card::selection {
+        background: blue;
+    }
 
 #connectController {
     left: 50%;

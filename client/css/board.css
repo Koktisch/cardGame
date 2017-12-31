@@ -71,7 +71,7 @@
         #enehp > .progress > .progress-bar {
             animation: animate-positive 2s;
         }
-
+        
 #enemyPlayerBoard {
     position: absolute;
     width: 100%;

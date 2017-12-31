@@ -7,6 +7,7 @@ socket.on('startGameController', function (data) {
     if (data.start) {
         $('#opponentMove').text('Tura: Twoja');
         $('#opponentMove').attr('value', 'true');
+        $('#pass').css('display', 'block');
     }
     else {
         $('#opponentMove').text('Tura: Przeciwnika');
@@ -23,7 +24,7 @@ function createCard(id, name, cost, dmg, def, img, abillity, artist, spy, create
         '<img id="isSpy" src="client/img/Icons/Eye_open.png">'+        
         '<img src="' + img + '" id="imgCard">' +
         '<div id="dmg"><img id="attackImg" src="client/img/Icons/attack.png"><div>' + dmg + '</div></div> ' +
-        '<div id="created"><a>Artysta:</a><br><a href="' + artist + ' target="_blank">' + createdName + '</a></div>' + 
+        '<div id="created"><a>Artysta:</a><br><a>' + createdName + '</a></div>' + 
         '<div id="def"><img id="shieldImg" src="client/img/Icons/shield.png"><div>'+def+'</div></div></div></div>';
 
     return innerTxt;
@@ -41,13 +42,15 @@ function choseCard(e)
 {
     if ($('#opponentMove').attr('value') == 'true')
     {
-        if (sessionStorage.getItem('card') != e.outerHTML) {
+        if (sessionStorage.getItem('card') == null) {
             sessionStorage.setItem('card', e.outerHTML);
+            e.style.boxShadow = '#f0766e 5px 10px 8px 10px';
             $('.positionButtons').css('display', 'block');
         }
         else {
             sessionStorage.removeItem('card');
             $('.positionButtons').css('display', 'none');
+            e.style.boxShadow = '';
         }
     }
 }
@@ -72,8 +75,10 @@ function setInPos(position)
 
 
 socket.on('setTurn_Controller', function (turn) {
+    $('#pass').css('display', 'none');
     if (turn.yourTurn)
-    {       
+    {               
+        $('#pass').css('display', 'block');
         if ($('#opponentMove').text() != 'Spasowano') {
             $('#opponentMove').text('Tura: Twoja');
             $('#opponentMove').attr('value', 'true');
@@ -85,6 +90,7 @@ socket.on('setTurn_Controller', function (turn) {
         if ($('#opponentMove').text() != 'Spasowano') {
             $('#opponentMove').text('Tura: Przeciwnika');
             $('#opponentMove').attr('value', 'false');
+            $('.card').css('boxShadow', '');
         }
         sessionStorage.removeItem('card');
     }   
@@ -95,22 +101,18 @@ function pass()
 {
     socket.emit('pass', {});
     $('#opponentMove').text('Spasowano');
+    $('.card').css('boxShadow', '');
+    $('#opponentMove').attr('value', 'Pass');
+    $('#pass').css('display', 'none');
     $('.positionButtons').css('display', 'none');
 
 }
 
-socket.on('enemyDisconectedController', function (obj) {
-    if (obj.val) {
-        $('#controlerBoard').empty();
+socket.on('enemyDisconectedController', function () {
+        $('#boardLine').empty();
         $('#controlerBoard').css('display', 'none');
         $('#waiting').css('display', 'block');        
         $('.blockBox').css('display', 'block');
-    }
-    else
-    {
-        window.open('', '_parent', '');
-        window.close();
-    }
 });
 
 socket.on('closeBoard', function () {
@@ -121,7 +123,22 @@ socket.on('closeBoard', function () {
     $('#drawController').css('display', 'none');
 });
 
+socket.on('enemyCloseBoard', function () {
+    $('#boardLine').empty();
+    $('#controlerBoard').css('display', 'none');
+    $('#waitingBox').css('display', 'block');
+});
+
+socket.on('enemyCloseBoard_Win', function () {
+    $('#resualt').css('display', 'block');
+    $('#boardLine').empty();
+    $('#controlerBoard').css('display', 'none');
+    $('#winController').css('display', 'block');
+});
+
 socket.on('showResualt', function (obj) {
+    sessionStorage.removeItem('card');
+    $('.positionButtons').css('display', 'none');
     $('#resualt').css('display', 'block'); 
     $('#boardLine').empty();
     $('#controlerBoard').css('display', 'none'); 

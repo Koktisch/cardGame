@@ -20,6 +20,7 @@ console.log('Server started');
 
 function timer(i, host) {
     i--;
+    host.isActive = true;
     if (SOCKET_LIST[host.firstPlayer.id] != 'undefined' && host.firstPlayer != 'undefined' && SOCKET_LIST[host.secondPlayer.id] != 'undefined' && host.secondPlayer != 'undefined')
     {
         SOCKET_LIST[host.firstPlayer.id].emit('timer', { time: i, changeTurn: (i == 0 ? true : false) });
@@ -28,14 +29,18 @@ function timer(i, host) {
 
     if (host.stopTimer)
     {
-        host.clearTimer();
+        if (host.isActive)
+            host.clearTimer();
         SOCKET_LIST[host.firstPlayer.id].emit('clearTimer', { });
         SOCKET_LIST[host.secondPlayer.id].emit('clearTimer', {});
         host.stopTimer = false;
         host.setTimer();
     }
     else if (i == 0) {
-        host.clearTimer();
+        if (host.isActive)
+            host.clearTimer();
+        host.isActive = false;
+        host.stopTimer = false;
         changeTurn(host);
     }
     else {
@@ -45,7 +50,7 @@ function timer(i, host) {
 }
 
 function changeTurn(host) {
-    var board = BOARDS_LIST[host.id];
+    var board = BOARDS_LIST[host.board.host];
     if (host.playerTurn == host.firstPlayer.id) {
         if (!board.secondPlayerPass) {
             host.setPlayerTurn(host.secondPlayer.id);
@@ -75,7 +80,8 @@ function changeTurn(host) {
             SOCKET_LIST[host.secondPlayer.controller.controllerID].emit('setTurn_Controller', { yourTurn: true });
         }
     }
-    host.clearTimer();
+    if (host.isActive)
+        host.clearTimer();
     host.setTimer();
 }
 
@@ -168,7 +174,8 @@ var HOST = function (id, player, data) {
         password: data.password,
         playerTurn: null,
         timer: null,
-        stopTimer: false
+        stopTimer: false,
+        isActive: false
     }
 
     party.createParty = function () {
@@ -183,7 +190,15 @@ var HOST = function (id, player, data) {
     }
 
     party.clearTimer = function () {
+        if (party.isActive)
+            party.stopTimer = true;
+
+        party.isActive = false;
         clearTimeout(party.timer);
+        if (party.firstPlayer != 'undefined')
+            SOCKET_LIST[party.firstPlayer.id].emit('clearTimer', {});
+        if (party.secondPlayer != 'undefined')
+            SOCKET_LIST[party.secondPlayer.id].emit('clearTimer', {});
     }
 
     party.removeParty = function () {
@@ -453,6 +468,44 @@ io.sockets.on('connection', function (socket) {
     });
 
     socket.on('disconnect', function () {
+        if (PLAYER_LIST[socket.id]) {
+            var host = HostGames_LIST[PLAYER_LIST[socket.id].host];
+            if (host) {
+
+                if (host.firstPlayer.controller) {
+                    if (host.firstPlayer.controller.controllerID == socket.id) {
+                        SOCKET_LIST[host.secondPlayer.controller.controllerID].emit('enemyDisconectedController', {});
+                        SOCKET_LIST[host.secondPlayer.id].emit('enemyDisconectedBoard', {});
+                    }
+                }
+
+                if (host.secondPlayer.controller) {
+                    if (host.secondPlayer.controller.controllerID == socket.id) {
+                        SOCKET_LIST[host.firstPlayer.controller.controllerID].emit('enemyDisconectedController', {});
+                        SOCKET_LIST[host.firstPlayer.id].emit('enemyDisconectedBoard', {});
+                    }
+                }
+
+                if (host.firstPlayer) {
+                    if (host.firstPlayer.id == socket.id) {
+                        SOCKET_LIST[host.secondPlayer.id].emit('enemyDisconectedBoard', {});
+                        SOCKET_LIST[host.secondPlayer.controller.controllerID].emit('enemyDisconectedController', {});
+                    }
+                }
+
+                if (host.secondPlayer) {
+                    if (host.secondPlayer.id == socket.id) {
+                        SOCKET_LIST[host.firstPlayer.id].emit('enemyDisconectedBoard', {});
+                        SOCKET_LIST[host.firstPlayer.controller.controllerID].emit('enemyDisconectedController', {});
+                    }
+                }
+
+                host.stopTimer = true;
+                if (host.isActive)
+                    host.clearTimer();
+            }
+        }
+
         removeGame();
         deleteHostedGame();
         delete SOCKET_LIST[socket.id];
@@ -472,7 +525,8 @@ io.sockets.on('connection', function (socket) {
         {
             if (HostGames_LIST[PLAYER_LIST[socket.id].host].firstPlayer.id === socket.id)
             {
-                HostGames_LIST[PLAYER_LIST[socket.id].host].clearTimer();
+                if (host.isActive)
+                    HostGames_LIST[PLAYER_LIST[socket.id].host].clearTimer();
                 if (HostGames_LIST[PLAYER_LIST[socket.id].host].secondPlayer != null)
                 {
                     SOCKET_LIST[HostGames_LIST[PLAYER_LIST[socket.id].host].secondPlayer.id].emit('enemyDisconectedBoard', {});
@@ -485,7 +539,8 @@ io.sockets.on('connection', function (socket) {
                
             }
             else {
-                HostGames_LIST[PLAYER_LIST[socket.id].host].clearTimer();
+                if (host.isActive)
+                    HostGames_LIST[PLAYER_LIST[socket.id].host].clearTimer();
                 if (HostGames_LIST[PLAYER_LIST[socket.id].host].firstPlayer != null) {
                     SOCKET_LIST[HostGames_LIST[PLAYER_LIST[socket.id].host].firstPlayer.id].emit('enemyDisconectedBoard', {});
                     SOCKET_LIST[HostGames_LIST[PLAYER_LIST[socket.id].host].firstPlayer.controller.controllerID].emit('enemyDisconectedController', { val: true });
@@ -497,7 +552,8 @@ io.sockets.on('connection', function (socket) {
 
             if (HostGames_LIST[PLAYER_LIST[socket.id].host] != undefined) {
                 if (HostGames_LIST[PLAYER_LIST[socket.id].host].firstPlayer.controller.controllerID === socket.id) {
-                    HostGames_LIST[PLAYER_LIST[socket.id].host].clearTimer();
+                    if (host.isActive)
+                        HostGames_LIST[PLAYER_LIST[socket.id].host].clearTimer();
                     if (HostGames_LIST[PLAYER_LIST[socket.id].host].secondPlayer.id != null) {
                         SOCKET_LIST[HostGames_LIST[PLAYER_LIST[socket.id].host].secondPlayer.id].emit('enemyDisconectedBoard', {});
                         SOCKET_LIST[HostGames_LIST[PLAYER_LIST[socket.id].host].secondPlayer.controller.controllerID].emit('enemyDisconectedController', { val: true });
@@ -508,7 +564,8 @@ io.sockets.on('connection', function (socket) {
 
                 }
                 else {
-                    HostGames_LIST[PLAYER_LIST[socket.id].host].clearTimer();
+                    if (host.isActive)
+                        HostGames_LIST[PLAYER_LIST[socket.id].host].clearTimer();
                     if (HostGames_LIST[PLAYER_LIST[socket.id].host].firstPlayer.id != null) {
                         SOCKET_LIST[HostGames_LIST[PLAYER_LIST[socket.id].host].firstPlayer.id].emit('enemyDisconectedBoard', {});
                         SOCKET_LIST[HostGames_LIST[PLAYER_LIST[socket.id].host].firstPlayer.controller.controllerID].emit('enemyDisconectedController', { val: true });
@@ -631,8 +688,9 @@ io.sockets.on('connection', function (socket) {
                 board.firstPlayerPass = true;
             else if (host.secondPlayer.controller.controllerID == socket.id)
                 board.secondPlayerPass = true;
-
-            if (board.firstPlayerPass && board.secondPlayerPass)
+            if (host.isActive)
+                host.clearTimer();
+            if (board.firstPlayerPass || board.secondPlayerPass)
                 changeTurn(host);
             calculatePoints(host);
         });
@@ -648,10 +706,11 @@ io.sockets.on('connection', function (socket) {
             board.secondPlayerPass = !card.haveAnyCard;
 
         board.addCard(card.card, host.firstPlayer.controller.controllerID == socket.id ? host.firstPlayer.id : host.secondPlayer.id, card.position);
-        BOARDS_LIST[host.firstPlayer.id] = board;
+        BOARDS_LIST[host.board.host] = board;
 
         if (board.secondPlayerPass || board.firstPlayerPass) {
-            host.clearTimer();
+            if (host.isActive)
+                host.clearTimer();
             host.stopTimer = true;
             changeTurn(host);
         }
@@ -668,13 +727,20 @@ io.sockets.on('connection', function (socket) {
         });
 
     socket.on('closedBoard', function () {
-        var host = HostGames_LIST[PLAYER_LIST[CONTROLERS_LIST[socket.id].userID].host];
+        var host = HostGames_LIST[PLAYER_LIST[socket.id].host];
         host.stopTimer = true;
-        host.clearTimer();
-        if (host.firstPlayer.id == socket.id)
+        if (host.isActive)
+            host.clearTimer();
+        if (host.firstPlayer.id == socket.id) {
+            SOCKET_LIST[host.firstPlayer.controller.controllerID].emit('enemyCloseBoard', {});
             SOCKET_LIST[host.secondPlayer.id].emit('enemyCloseBoard', {});
-        else
-            SOCKET_LIST[host.secondPlayer.id].emit('enemyCloseBoard', {});
+            SOCKET_LIST[host.secondPlayer.controller.controllerID].emit('enemyCloseBoard_Win', {});
+        }
+        else {
+            SOCKET_LIST[host.secondPlayer.controller.controllerID].emit('enemyCloseBoard', {});
+            SOCKET_LIST[host.firstPlayer.id].emit('enemyCloseBoard', {});
+            SOCKET_LIST[host.firstPlayer.controller.controllerID].emit('enemyCloseBoard_Win', {});
+        }
     });
 
     //Timer
@@ -687,34 +753,33 @@ io.sockets.on('connection', function (socket) {
 
     function calculatePoints(host)
     { 
-        var board = BOARDS_LIST[host.id];
+        var board = BOARDS_LIST[host.board.host];
         var enHP = 15;
         var onHP = 15;
-        for (var i = 0; i < board.table.length; i++)
-        {
-            if (board.table[i].owner == host.firstPlayer.id)
-            {
-                if (board.table[i].position == 'attack')
-                    enHP = enHP - board.table[i].card.DmgValue;
-                else
-                    onHP = onHP + board.table[i].card.DefValue;
-            }
-            else
-            {
-                if (board.table[i].position == 'attack')
-                    onHP = onHP - board.table[i].card.DmgValue;
-                else
-                    enHP = enHP + board.table[i].card.DefValue;
+        if (board.table != 'undefined') {
+            for (var i = 0; i < board.table.length; i++) {
+                if (board.table[i].owner == host.firstPlayer.id) {
+                    if (board.table[i].position == 'attack')
+                        enHP = enHP - board.table[i].card.DmgValue;
+                    else
+                        onHP = onHP + board.table[i].card.DefValue;
+                }
+                else {
+                    if (board.table[i].position == 'attack')
+                        onHP = onHP - board.table[i].card.DmgValue;
+                    else
+                        enHP = enHP + board.table[i].card.DefValue;
+                }
             }
         }
-
         SOCKET_LIST[host.firstPlayer.id].emit('calculatedPoints', { yourHP: (onHP > 15 ? board.ownHP : onHP), enemyHP: (enHP > 15 ? board.enemyHP : enHP), passed: board.firstPlayerPass && board.secondPlayerPass });
         SOCKET_LIST[host.secondPlayer.id].emit('calculatedPoints', { enemyHP: (onHP > 15 ? board.ownHP : onHP), yourHP: (enHP > 15 ? board.enemyHP : enHP), passed: board.firstPlayerPass && board.secondPlayerPass });
 
         if (board.firstPlayerPass && board.secondPlayerPass || onHP <= 0 || enHP <= 0) {
             SOCKET_LIST[host.firstPlayer.controller.controllerID].emit('showResualt', { yourHP: (onHP > 15 ? board.ownHP : onHP), enemyHP: (enHP > 15 ? board.enemyHP : enHP) });
             SOCKET_LIST[host.secondPlayer.controller.controllerID].emit('showResualt', { enemyHP: (onHP > 15 ? board.ownHP : onHP), yourHP: (enHP > 15 ? board.enemyHP : enHP) });
-            host.clearTimer();
+            if (host.isActive)
+                host.clearTimer();
             removeGame();
         }
     }

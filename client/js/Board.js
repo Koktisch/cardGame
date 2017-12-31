@@ -4,6 +4,13 @@ socket.on('startGameBoard', function (startGameData) {
     $('#ownhp > .progress > .progress-bar').html(startGameData.ownHP);
     $('#enehp > .progress > .progress-bar').html(startGameData.enemyHP);
     $('#priority').css('display', 'block');
+    $('.progress > .progress-bar').css('width', '0%');
+
+    $('#enehp > .progress > .progress-bar').css('width', '100%');
+    $('#enehp > .progress > .progress-bar').text(15);
+
+    $('#ownhp > .progress > .progress-bar').css('width', '100%');
+    $('#ownhp > .progress > .progress-bar').text(15);
     if (startGameData.start) {
            socket.emit('timer');  
     }
@@ -73,6 +80,10 @@ socket.on('setTurn_Board', function (turn) {
     $('#timer').css('display', 'none');
 });
 
+socket.on('enemyDisconectedBoard', function () {
+    $('#win').css('display', 'block');
+    $('#blockEndGame').css('display', 'block');
+});
 
 socket.on('calculatedPoints', function (e) {
     if (e.yourHP >= 15) {
@@ -119,6 +130,10 @@ socket.on('closeBoard', function () {
     $('#board').css('display', 'none');
     $('#blockEndGame').css('display', 'none');
 });
+
+function disconnectBoard() {
+    closeBoard();
+}
 
 function createCardBoard(id, cost, dmg, def, img, spy, position) {
     if (position == 'attack') {
