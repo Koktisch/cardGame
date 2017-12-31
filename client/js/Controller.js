@@ -1,5 +1,4 @@
 socket.on('startGameController', function (data) {
-    localStorage.setItem('hostGame', JSON.stringify(data));
     $('.blockBox').css('display', 'none');
     if (data.deck !== 'undefined') {
         loadCards(data.deck);

@@ -9,6 +9,7 @@ var BOARDS_LIST = {};
 var TABLE = {};
 
 var $ = require('jquery');
+var async = require('async');
 
 app.get('/', function (req, res) {
     res.sendFile(__dirname + '/client/index.html');
@@ -16,12 +17,12 @@ app.get('/', function (req, res) {
 app.use('/client', express.static(__dirname + '/client'));
 
 serv.listen(process.env.PORT || 2000);
-console.log('Server started');
 
 function timer(i, host) {
     i--;
     host.isActive = true;
-    if (SOCKET_LIST[host.firstPlayer.id] != 'undefined' && host.firstPlayer != 'undefined' && SOCKET_LIST[host.secondPlayer.id] != 'undefined' && host.secondPlayer != 'undefined')
+
+    if (host.isActive && SOCKET_LIST[host.firstPlayer.id] != 'undefined' && host.firstPlayer != 'undefined' && SOCKET_LIST[host.secondPlayer.id] != 'undefined' && host.secondPlayer != 'undefined')
     {
         SOCKET_LIST[host.firstPlayer.id].emit('timer', { time: i, changeTurn: (i == 0 ? true : false) });
         SOCKET_LIST[host.secondPlayer.id].emit('timer', { time: i, changeTurn: (i == 0 ? true : false) });
@@ -226,20 +227,20 @@ var HOST = function (id, player, data) {
             if (!party.playerTurn) 
                 party.setPlayerTurn(party.firstPlayer.id);                
             
-            SOCKET_LIST[party.secondPlayer.id].emit('startGameBoard', { game: party, startTxt: 'Twoja tura', start: true, ownHP: party.board.ownHP, enemyHP: party.board.enemyHP });
-            SOCKET_LIST[party.secondPlayer.controller.controllerID].emit('startGameController', { game: party, deck: deck, start: true });
-            SOCKET_LIST[party.firstPlayer.id].emit('startGameBoard', { game: party, startTxt: 'Rozpoczyna przeciwnik', start: false, ownHP: party.board.ownHP, enemyHP: party.board.enemyHP});
-            SOCKET_LIST[party.firstPlayer.controller.controllerID].emit('startGameController', { game: party, deck: deck, start: false });
+            SOCKET_LIST[party.secondPlayer.id].emit('startGameBoard', { startTxt: 'Twoja tura', start: true, ownHP: party.board.ownHP, enemyHP: party.board.enemyHP });
+            SOCKET_LIST[party.secondPlayer.controller.controllerID].emit('startGameController', { deck: deck, start: true });
+            SOCKET_LIST[party.firstPlayer.id].emit('startGameBoard', { startTxt: 'Rozpoczyna przeciwnik', start: false, ownHP: party.board.ownHP, enemyHP: party.board.enemyHP});
+            SOCKET_LIST[party.firstPlayer.controller.controllerID].emit('startGameController', { game: stringify(party), deck: deck, start: false });
         }
         else {
 
             if (!party.playerTurn)
                 party.setPlayerTurn(party.secondPlayer.id);
 
-            SOCKET_LIST[party.firstPlayer.id].emit('startGameBoard', { game: party, startTxt: 'Twoja tura', start: true, ownHP: party.board.ownHP, enemyHP: party.board.enemyHP });
-            SOCKET_LIST[party.firstPlayer.controller.controllerID].emit('startGameController', { game: party, deck: deck, start: true });
-            SOCKET_LIST[party.secondPlayer.id].emit('startGameBoard', { game: party, startTxt: 'Rozpoczyna przeciwnik', start: false, ownHP: party.board.ownHP, enemyHP: party.board.enemyHP });
-            SOCKET_LIST[party.secondPlayer.controller.controllerID].emit('startGameController', { game: party, deck: deck, start: false });
+            SOCKET_LIST[party.firstPlayer.id].emit('startGameBoard', {  startTxt: 'Twoja tura', start: true, ownHP: party.board.ownHP, enemyHP: party.board.enemyHP });
+            SOCKET_LIST[party.firstPlayer.controller.controllerID].emit('startGameController', { deck: deck, start: true });
+            SOCKET_LIST[party.secondPlayer.id].emit('startGameBoard', { startTxt: 'Rozpoczyna przeciwnik', start: false, ownHP: party.board.ownHP, enemyHP: party.board.enemyHP });
+            SOCKET_LIST[party.secondPlayer.controller.controllerID].emit('startGameController', { deck: deck, start: false });
         }
 
     }
@@ -448,7 +449,6 @@ var CARD = function () {
 var io = require('socket.io')(serv, {});
 io.sockets.on('connection', function (socket) {
     SOCKET_LIST[socket.id] = socket;
-    console.log('socket' + socket.id + ' connection');
     var player;
 
     socket.on('addPlayer', function (data) {
@@ -472,28 +472,32 @@ io.sockets.on('connection', function (socket) {
             var host = HostGames_LIST[PLAYER_LIST[socket.id].host];
             if (host) {
 
-                if (host.firstPlayer.controller) {
-                    if (host.firstPlayer.controller.controllerID == socket.id) {
-                        SOCKET_LIST[host.secondPlayer.controller.controllerID].emit('enemyDisconectedController', {});
-                        SOCKET_LIST[host.secondPlayer.id].emit('enemyDisconectedBoard', {});
-                    }
-                }
-
-                if (host.secondPlayer.controller) {
-                    if (host.secondPlayer.controller.controllerID == socket.id) {
-                        SOCKET_LIST[host.firstPlayer.controller.controllerID].emit('enemyDisconectedController', {});
-                        SOCKET_LIST[host.firstPlayer.id].emit('enemyDisconectedBoard', {});
-                    }
-                }
-
                 if (host.firstPlayer) {
-                    if (host.firstPlayer.id == socket.id) {
-                        SOCKET_LIST[host.secondPlayer.id].emit('enemyDisconectedBoard', {});
-                        SOCKET_LIST[host.secondPlayer.controller.controllerID].emit('enemyDisconectedController', {});
+                    if (host.firstPlayer.controller) {
+                        if (host.firstPlayer.controller.controllerID == socket.id && SOCKET_LIST[host.firstPlayer.id]) {
+                            SOCKET_LIST[host.secondPlayer.controller.controllerID].emit('enemyDisconectedController', {});
+                            SOCKET_LIST[host.secondPlayer.id].emit('enemyDisconectedBoard', {});
+                        }
                     }
                 }
 
                 if (host.secondPlayer) {
+                    if (host.secondPlayer.controller) {
+                        if (host.secondPlayer.controller.controllerID == socket.id && SOCKET_LIST[host.firstPlayer.id]) {
+                            SOCKET_LIST[host.firstPlayer.controller.controllerID].emit('enemyDisconectedController', {});
+                            SOCKET_LIST[host.firstPlayer.id].emit('enemyDisconectedBoard', {});
+                        }
+                    }
+                }
+
+                if (host.firstPlayer) {
+                    if (host.firstPlayer.id == socket.id && SOCKET_LIST[host.secondPlayer.id]) {
+                        SOCKET_LIST[host.secondPlayer.id].emit('enemyDisconectedBoard', {});
+                        SOCKET_LIST[host.secondPlayer.controller.controllerID].emit('enemyDisconectedController', {});
+                    }
+                }
+
+                if (host.secondPlayer && SOCKET_LIST[host.firstPlayer.id]) {
                     if (host.secondPlayer.id == socket.id) {
                         SOCKET_LIST[host.firstPlayer.id].emit('enemyDisconectedBoard', {});
                         SOCKET_LIST[host.firstPlayer.controller.controllerID].emit('enemyDisconectedController', {});
@@ -525,7 +529,7 @@ io.sockets.on('connection', function (socket) {
         {
             if (HostGames_LIST[PLAYER_LIST[socket.id].host].firstPlayer.id === socket.id)
             {
-                if (host.isActive)
+                if (HostGames_LIST[PLAYER_LIST[socket.id].host].isActive)
                     HostGames_LIST[PLAYER_LIST[socket.id].host].clearTimer();
                 if (HostGames_LIST[PLAYER_LIST[socket.id].host].secondPlayer != null)
                 {
@@ -539,7 +543,7 @@ io.sockets.on('connection', function (socket) {
                
             }
             else {
-                if (host.isActive)
+                if (HostGames_LIST[PLAYER_LIST[socket.id].host].isActive)
                     HostGames_LIST[PLAYER_LIST[socket.id].host].clearTimer();
                 if (HostGames_LIST[PLAYER_LIST[socket.id].host].firstPlayer != null) {
                     SOCKET_LIST[HostGames_LIST[PLAYER_LIST[socket.id].host].firstPlayer.id].emit('enemyDisconectedBoard', {});
@@ -552,7 +556,7 @@ io.sockets.on('connection', function (socket) {
 
             if (HostGames_LIST[PLAYER_LIST[socket.id].host] != undefined) {
                 if (HostGames_LIST[PLAYER_LIST[socket.id].host].firstPlayer.controller.controllerID === socket.id) {
-                    if (host.isActive)
+                    if (HostGames_LIST[PLAYER_LIST[socket.id].host].isActive)
                         HostGames_LIST[PLAYER_LIST[socket.id].host].clearTimer();
                     if (HostGames_LIST[PLAYER_LIST[socket.id].host].secondPlayer.id != null) {
                         SOCKET_LIST[HostGames_LIST[PLAYER_LIST[socket.id].host].secondPlayer.id].emit('enemyDisconectedBoard', {});
@@ -564,7 +568,7 @@ io.sockets.on('connection', function (socket) {
 
                 }
                 else {
-                    if (host.isActive)
+                    if (HostGames_LIST[PLAYER_LIST[socket.id].host].isActive)
                         HostGames_LIST[PLAYER_LIST[socket.id].host].clearTimer();
                     if (HostGames_LIST[PLAYER_LIST[socket.id].host].firstPlayer.id != null) {
                         SOCKET_LIST[HostGames_LIST[PLAYER_LIST[socket.id].host].firstPlayer.id].emit('enemyDisconectedBoard', {});
@@ -579,7 +583,7 @@ io.sockets.on('connection', function (socket) {
     };
 
     socket.on('getPartyList', function () {
-        emitLobbys();
+        async.parallel(emitLobbys());        
     });
 
     function emitLobbys() {
@@ -613,6 +617,11 @@ io.sockets.on('connection', function (socket) {
     });
 
     socket.on('joinGame', function (data) {
+        async.parallel(joinGame(data));
+    });
+
+    function joinGame(data)
+    {
         for (var i in HostGames_LIST) {
             if (HostGames_LIST[i] !== 'undefined' && HostGames_LIST[i].id === data.ID) {
                 HostGames_LIST[i].addSecondPlayer(PLAYER_LIST[socket.id]);
@@ -625,8 +634,7 @@ io.sockets.on('connection', function (socket) {
                 break;
             }
         }
-    });
-
+    }
     //Controller
 
     socket.on('getControllerCode', function (data) {

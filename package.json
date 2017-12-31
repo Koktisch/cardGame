@@ -4,7 +4,9 @@
   "description": "karcianka",
   "main": "app.js",
   "dependencies": {
+    "async": "^2.6.0",
     "express": "^4.15.3",
+    "json-stringify": "^1.0.0",
     "socket.io": "^1.4.5"
   },
   "engines": {
