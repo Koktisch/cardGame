@@ -98,16 +98,22 @@
         margin-right: 35%;
         height: 100%;
         font-size: 60px;
-        color: red;
+        color: #6c6c6c;
         margin-left: 35%;
         border-radius: 25px 25px 0px 0px
     }
+        #pass > button > a {
+            color: #ba0303;
+            margin-left: 25px;
+        }
 
 .error {
     position: absolute;
     top: 0px;
+    left: 0px;
     text-align: center;
     display: none;
+    width: 100%;
     color: red;
     font-size: 72px;
     font-weight: bold;
@@ -236,7 +242,6 @@
 #inCard > #def {
     position: relative;
     float: left;
-    margin-left: 1%;
     width: 25%;
     padding: 10px;
     height: 15%;

@@ -6,6 +6,7 @@ socket.on('message', function (msg) {
 getLobbysFromServer();
 
 socket.on('addControlerResualt_MP', function (data) {
+    $('#controllerCode').attr('value', 'false');
     $('#controllerCode').css('display', 'none');
 });
 
@@ -62,21 +63,6 @@ function hostGame() {
 socket.on('startGame', function (data) {
     $('#board').css('display', 'block');
 });
-
-function joinLobby(e) {
-    let statusStr = '';
-    let idStr = '';
-    statusStr = e.parentElement.id.charAt(0);
-    idStr = e.parentElement.id.substring(2);
-    if (statusStr == partyStatusEnum.private) {
-        checkPassword(e.parentElement.children[0].value, idStr);
-    }
-    else {
-        socket.emit('joinGame', { ID: idStr });
-        if ($('#' + socket.id))
-            $('#' + socket.id).click();
-    }
-};
 
 function leaveLobby() {
     socket.emit('adminLeaveLobby', {});

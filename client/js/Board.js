@@ -4,16 +4,12 @@ socket.on('startGameBoard', function (startGameData) {
     $('#ownhp > .progress > .progress-bar').html(startGameData.ownHP);
     $('#enehp > .progress > .progress-bar').html(startGameData.enemyHP);
     $('#priority').css('display', 'block');
-    $('.progress > .progress-bar').css('width', '0%');
 
     $('#enehp > .progress > .progress-bar').css('width', '100%');
     $('#enehp > .progress > .progress-bar').text(15);
 
     $('#ownhp > .progress > .progress-bar').css('width', '100%');
     $('#ownhp > .progress > .progress-bar').text(15);
-    if (startGameData.start) {
-           socket.emit('timer');  
-    }
 });
 
 socket.on('createBoard', function (board) {
@@ -35,9 +31,6 @@ socket.on('createBoard', function (board) {
             }
         }
     }
-
-    $('#timer').css('display', 'none');
-    $('#board > .progress').css('display', 'none');
 });
 
 socket.on('enemyDisconectedBoard', function () {
@@ -47,42 +40,13 @@ socket.on('enemyDisconectedBoard', function () {
     $('#board').css('display', 'none');
 }); 
 
-socket.on('clearTimer', function () {
-    $('#timer').css('display', 'none');
-    $('#board > .progress').css('display', 'none');
-});
-
-socket.on('timer', function (time)
-{
-    $('#timer').html(time.time);
-
-    if (time.time == 30) {
-        $('#board > .progress > .progress-bar').css('width', "0%");
-        $('#board > .progress > .progress-bar').animate({ width: "100%" }, 30000);
-    }
-
-    if ($('#timer').css('display') == 'none') 
-        $('#timer').css('display', 'block');
-
-    if ($('#board > .progress').css('display') == 'none')
-        $('#board > .progress').css('display', 'block');
-
-    if (time.changeTurn)
-    {   
-        $('#timer').css('display', 'none');
-        $('#board > .progress').css('display', 'none');
-    }
-});
-
-socket.on('setTurn_Board', function (turn) {    
+socket.on('setTurn_Board', function (turn) { 
     $('#priority').html((turn.yourTurn == true ? 'Twoja tura' : 'Tura przeciwnika'));
-    $('#board > .progress').css('display', 'none');
-    $('#timer').css('display', 'none');
 });
-
 socket.on('enemyDisconectedBoard', function () {
     $('#win').css('display', 'block');
     $('#blockEndGame').css('display', 'block');
+    
 });
 
 socket.on('calculatedPoints', function (e) {

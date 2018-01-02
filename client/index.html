@@ -35,7 +35,9 @@
 
             socket.on('checkPasswordResualt', function (data) {
                 if (data.resualt) {
-                    joinLobby(id);
+                    socket.emit('joinGame', { ID: data.id });
+                    if ($('#' + socket.id))
+                        $('#' + socket.id).click();
                 }
                 else {
                     alert('Złe hasło');
@@ -55,7 +57,8 @@
 
 
         function getLobbysFromServer() {
-            if (!phoneModels.test(navigator.userAgent)) {
+            if (!phoneModels.test(navigator.userAgent))
+            {
                 socket.emit('getPartyList');
                 socket.on('partyList', function (data) {
                     let gamesBox = document.getElementById("gamesBox");
@@ -110,14 +113,26 @@
         }
 
         function addPlayer() {
-            if ($('#userName').val()) {
-                socket.emit('addPlayer', {
-                    userName: $('#userName').val()
-                });
+            if ($('#userName').val() != '')
+            {
+                var text = $('#userName').val();
+                if (text.length <= 16) {
+                    socket.emit('addPlayer', {
+                        userName: $('#userName').val()
+                    });
+
+                    $('#errorPc').css('display', 'none');
+                    $('#errorPc').text('');
+                }
+                else {
+                    $('#errorPc').text('Maksymalna liczba dla nicku znaków to 16');
+                    $('#errorPc').css('display', 'block');
+                }
             }
             else {
-                $('#errorPc').val('Nazwij się :)')
-            }
+                $('#errorPc').text('Nazwij się :)');
+                $('#errorPc').css('display', 'block');
+            }            
 
             socket.on('addPlayerResult', function (data) {
                 if (data === false) {
@@ -147,6 +162,7 @@
                 if (data === true) {
                     $('#waiting').css('display', 'block');
                     $('#connectController').css('display', 'none');
+                    $('#controllerCode').attr('value', 'false');                    
                     $('#waitingBox').show();
                 }
                 else {
@@ -154,6 +170,26 @@
                 }
             });
         }
+
+        function joinLobby(e) {
+            if ($('#controllerCode').attr('value') == 'false') {
+                let statusStr = '';
+                let idStr = '';
+                statusStr = e.parentElement.id.charAt(0);
+                idStr = e.parentElement.id.substring(2);
+                if (statusStr == partyStatusEnum.private) {
+                    checkPassword(e.parentElement.children[0].value, idStr);
+                }
+                else {
+                    socket.emit('joinGame', { ID: idStr });
+                    if ($('#' + socket.id))
+                        $('#' + socket.id).click();
+                }
+            }
+            else {
+                alert('Błąd dołączenia do rozgrywki. Sparuj kontroler z użytkownikiem by móc dołączyć.');
+            }
+        };
 
     </script>
     <script type="text/javascript" src="client/js/Board.js" charset="utf-8"></script>
@@ -206,7 +242,7 @@
 
                 </div>
                 <!--Divy z position absolute-->
-                <div id="controllerCode">
+                <div id="controllerCode" value="true">
                     Wejdź na telefonie tutaj i wpisz poniższy kod:
                     <a id="code"></a>
                 </div>
@@ -242,9 +278,17 @@
                     <span id="firstTip" class="glyphicon glyphicon-chevron-right" onclick="$('#firstHelp_tip1').hide(); $('#firstHelp_tip2').hide(); $('#firstHelp_tip3').hide(); $('#game_rules_Help_tip').show();"></span>                   
                 </div>
 
+                <div id="firstHelp_tip3" class="helpTip">
+                    <span class="label label-success" id="helpLabel">Gracze</span>
+                    <div>No i najważniejsze, czyli Wy. Ta część pokazuje kto tutaj się znajduje. </div>
+                    <span id="firstTip" class="glyphicon glyphicon-chevron-right" onclick="$('#firstHelp_tip1').hide(); $('#firstHelp_tip2').hide(); $('#firstHelp_tip3').hide(); $('#game_rules_Help_tip').show();"></span>
+                </div>
+
                 <div id="game_rules_Help_tip" class="helpTip">
                     <span class="label label-success" id="helpLabel">Zasady gry</span>
-                    <div></div>
+                    <div>
+                        <img id="cardExample" src="client/img/Tutorial/cardExample.png">
+                    </div>
                         <span id="firstTip" class="glyphicon glyphicon-chevron-right" onclick="$('#game_rules_Help_tip').hide();$('.blockBox').hide();"></span>
                     </div>
                 <div class="error" id="error">`
@@ -284,7 +328,7 @@
             <div id="opponentMove">Tura: </div>
             <div id="boardLine"></div>
             <div id="pass">
-                <button onclick="pass()">Pass</button>
+                <button onclick="pass()">Pas<a></a></button>
             </div>
         </div>
 
@@ -324,10 +368,6 @@
         </div>
         <div id="priority">
         </div>
-        <div class="progress">
-            <div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%"></div>
-        </div>
-        <div id="timer"></div>
         <div id="enemyPlayerBoard">
             <div id="enehp">
                 <div class="progress">

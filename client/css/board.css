@@ -9,13 +9,14 @@
     background-color: rgba(59, 159, 72, 0.98);
 }
 #priority {
-    width: 10%;
+    width: 100%;
+    text-align: center;
     height: 4%;
-    text-align: right;
     position: absolute;
-    top: 49.5%;
-    right: 0;
+    top: 47.5%;
+    left: 0;
     padding-right: 5px;
+    font-size: xx-large;
 }
 #timer {
     position: absolute;

@@ -18,72 +18,24 @@ app.use('/client', express.static(__dirname + '/client'));
 
 serv.listen(process.env.PORT || 2000);
 
-function timer(i, host) {
-    i--;
-    host.isActive = true;
-
-    if (host.isActive && SOCKET_LIST[host.firstPlayer.id] != 'undefined' && host.firstPlayer != 'undefined' && SOCKET_LIST[host.secondPlayer.id] != 'undefined' && host.secondPlayer != 'undefined')
-    {
-        SOCKET_LIST[host.firstPlayer.id].emit('timer', { time: i, changeTurn: (i == 0 ? true : false) });
-        SOCKET_LIST[host.secondPlayer.id].emit('timer', { time: i, changeTurn: (i == 0 ? true : false) });
-    }
-
-    if (host.stopTimer)
-    {
-        if (host.isActive)
-            host.clearTimer();
-        SOCKET_LIST[host.firstPlayer.id].emit('clearTimer', { });
-        SOCKET_LIST[host.secondPlayer.id].emit('clearTimer', {});
-        host.stopTimer = false;
-        host.setTimer();
-    }
-    else if (i == 0) {
-        if (host.isActive)
-            host.clearTimer();
-        host.isActive = false;
-        host.stopTimer = false;
-        changeTurn(host);
-    }
-    else {
-        setTimeout(function () { timer(i, host); }, 1000);
-    }
-
-}
-
 function changeTurn(host) {
     var board = BOARDS_LIST[host.board.host];
     if (host.playerTurn == host.firstPlayer.id) {
-        if (!board.secondPlayerPass) {
-            host.setPlayerTurn(host.secondPlayer.id);
-            SOCKET_LIST[host.firstPlayer.id].emit('setTurn_Board', { yourTurn: true });
-            SOCKET_LIST[host.secondPlayer.id].emit('setTurn_Board', { yourTurn: false });
-            SOCKET_LIST[host.firstPlayer.controller.controllerID].emit('setTurn_Controller', { yourTurn: true });
-            SOCKET_LIST[host.secondPlayer.controller.controllerID].emit('setTurn_Controller', { yourTurn: false });
-        }
-        else
-        {
-            SOCKET_LIST[host.firstPlayer.id].emit('setTurn_Board', { yourTurn: true });          
-            SOCKET_LIST[host.firstPlayer.controller.controllerID].emit('setTurn_Controller', { yourTurn: true });
-        }
-    }
-    else if (host.playerTurn == host.secondPlayer.id) {
-        if (!board.firstPlayerPass) {
-            host.setPlayerTurn(host.firstPlayer.id);
+        host.setPlayerTurn(host.secondPlayer.id);
 
-            SOCKET_LIST[host.firstPlayer.id].emit('setTurn_Board', { yourTurn: false });
-            SOCKET_LIST[host.secondPlayer.id].emit('setTurn_Board', { yourTurn: true });
-            SOCKET_LIST[host.firstPlayer.controller.controllerID].emit('setTurn_Controller', { yourTurn: false });
-            SOCKET_LIST[host.secondPlayer.controller.controllerID].emit('setTurn_Controller', { yourTurn: true });
-        }
-        else
-        {
-            SOCKET_LIST[host.secondPlayer.id].emit('setTurn_Board', { yourTurn: true });
-            SOCKET_LIST[host.secondPlayer.controller.controllerID].emit('setTurn_Controller', { yourTurn: true });
-        }
+        SOCKET_LIST[host.firstPlayer.id].emit('setTurn_Board', { yourTurn: true });
+        SOCKET_LIST[host.secondPlayer.id].emit('setTurn_Board', { yourTurn: false });
+        SOCKET_LIST[host.firstPlayer.controller.controllerID].emit('setTurn_Controller', { yourTurn: true });
+        SOCKET_LIST[host.secondPlayer.controller.controllerID].emit('setTurn_Controller', { yourTurn: false });
+    }    
+    else if (host.playerTurn == host.secondPlayer.id) {
+        host.setPlayerTurn(host.firstPlayer.id);
+
+        SOCKET_LIST[host.firstPlayer.id].emit('setTurn_Board', { yourTurn: false });
+        SOCKET_LIST[host.secondPlayer.id].emit('setTurn_Board', { yourTurn: true });
+        SOCKET_LIST[host.firstPlayer.controller.controllerID].emit('setTurn_Controller', { yourTurn: false });
+        SOCKET_LIST[host.secondPlayer.controller.controllerID].emit('setTurn_Controller', { yourTurn: true });        
     }
-    if (host.isActive)
-        host.clearTimer();
-    host.setTimer();
 }
 
 var cardType = Object.freeze({ "NoSpy": 0, "Spy": 1 })
@@ -174,32 +126,12 @@ var HOST = function (id, player, data) {
         partyStatus: data.partyStatus ,
         password: data.password,
         playerTurn: null,
-        timer: null,
-        stopTimer: false,
-        isActive: false
+        
     }
 
     party.createParty = function () {
         console.log(party.id + ' - ' + party.firstPlayer);
         HostGames_LIST[party.id] = party;
-    }
-
-    party.setTimer = function () {
-        party.timer = setTimeout(function () {
-            timer(31, party);
-        }, 60000);
-    }
-
-    party.clearTimer = function () {
-        if (party.isActive)
-            party.stopTimer = true;
-
-        party.isActive = false;
-        clearTimeout(party.timer);
-        if (party.firstPlayer != 'undefined')
-            SOCKET_LIST[party.firstPlayer.id].emit('clearTimer', {});
-        if (party.secondPlayer != 'undefined')
-            SOCKET_LIST[party.secondPlayer.id].emit('clearTimer', {});
     }
 
     party.removeParty = function () {
@@ -474,7 +406,7 @@ io.sockets.on('connection', function (socket) {
 
                 if (host.firstPlayer) {
                     if (host.firstPlayer.controller) {
-                        if (host.firstPlayer.controller.controllerID == socket.id && SOCKET_LIST[host.firstPlayer.id]) {
+                        if (host.firstPlayer.controller.controllerID == socket.id && SOCKET_LIST[host.secondPlayer.id] && SOCKET_LIST[host.secondPlayer.controller.controllerID]) {
                             SOCKET_LIST[host.secondPlayer.controller.controllerID].emit('enemyDisconectedController', {});
                             SOCKET_LIST[host.secondPlayer.id].emit('enemyDisconectedBoard', {});
                         }
@@ -483,7 +415,7 @@ io.sockets.on('connection', function (socket) {
 
                 if (host.secondPlayer) {
                     if (host.secondPlayer.controller) {
-                        if (host.secondPlayer.controller.controllerID == socket.id && SOCKET_LIST[host.firstPlayer.id]) {
+                        if (host.secondPlayer.controller.controllerID == socket.id && SOCKET_LIST[host.firstPlayer.id] && SOCKET_LIST[host.firstPlayer.controller.controllerID]) {
                             SOCKET_LIST[host.firstPlayer.controller.controllerID].emit('enemyDisconectedController', {});
                             SOCKET_LIST[host.firstPlayer.id].emit('enemyDisconectedBoard', {});
                         }
@@ -491,22 +423,18 @@ io.sockets.on('connection', function (socket) {
                 }
 
                 if (host.firstPlayer) {
-                    if (host.firstPlayer.id == socket.id && SOCKET_LIST[host.secondPlayer.id]) {
+                    if (host.firstPlayer.id == socket.id && host.secondPlayer && SOCKET_LIST[host.secondPlayer.id] && SOCKET_LIST[host.secondPlayer.controller.controllerID]) {
                         SOCKET_LIST[host.secondPlayer.id].emit('enemyDisconectedBoard', {});
                         SOCKET_LIST[host.secondPlayer.controller.controllerID].emit('enemyDisconectedController', {});
                     }
                 }
 
-                if (host.secondPlayer && SOCKET_LIST[host.firstPlayer.id]) {
+                if (host.secondPlayer && SOCKET_LIST[host.firstPlayer.id] && SOCKET_LIST[host.firstPlayer.controller.controllerID]) {
                     if (host.secondPlayer.id == socket.id) {
                         SOCKET_LIST[host.firstPlayer.id].emit('enemyDisconectedBoard', {});
                         SOCKET_LIST[host.firstPlayer.controller.controllerID].emit('enemyDisconectedController', {});
                     }
                 }
-
-                host.stopTimer = true;
-                if (host.isActive)
-                    host.clearTimer();
             }
         }
 
@@ -529,9 +457,7 @@ io.sockets.on('connection', function (socket) {
         {
             if (HostGames_LIST[PLAYER_LIST[socket.id].host].firstPlayer.id === socket.id)
             {
-                if (HostGames_LIST[PLAYER_LIST[socket.id].host].isActive)
-                    HostGames_LIST[PLAYER_LIST[socket.id].host].clearTimer();
-                if (HostGames_LIST[PLAYER_LIST[socket.id].host].secondPlayer != null)
+                if (HostGames_LIST[PLAYER_LIST[socket.id].host].secondPlayer != null && SOCKET_LIST[HostGames_LIST[PLAYER_LIST[socket.id].host].secondPlayer.controller.controllerID])
                 {
                     SOCKET_LIST[HostGames_LIST[PLAYER_LIST[socket.id].host].secondPlayer.id].emit('enemyDisconectedBoard', {});
                     SOCKET_LIST[HostGames_LIST[PLAYER_LIST[socket.id].host].secondPlayer.controller.controllerID].emit('enemyDisconectedController', { val: true });
@@ -543,38 +469,39 @@ io.sockets.on('connection', function (socket) {
                
             }
             else {
-                if (HostGames_LIST[PLAYER_LIST[socket.id].host].isActive)
-                    HostGames_LIST[PLAYER_LIST[socket.id].host].clearTimer();
-                if (HostGames_LIST[PLAYER_LIST[socket.id].host].firstPlayer != null) {
+                if (HostGames_LIST[PLAYER_LIST[socket.id].host].firstPlayer != null &&
+                    SOCKET_LIST[HostGames_LIST[PLAYER_LIST[socket.id].host].secondPlayer]
+                    && SOCKET_LIST[HostGames_LIST[PLAYER_LIST[socket.id].host].secondPlayer.controller.controllerID])
+                {
                     SOCKET_LIST[HostGames_LIST[PLAYER_LIST[socket.id].host].firstPlayer.id].emit('enemyDisconectedBoard', {});
                     SOCKET_LIST[HostGames_LIST[PLAYER_LIST[socket.id].host].firstPlayer.controller.controllerID].emit('enemyDisconectedController', { val: true });
                 }
-                SOCKET_LIST[HostGames_LIST[PLAYER_LIST[socket.id].host].secondPlayer.controller.controllerID].emit('enemyDisconectedController', { val: false });
+                if (SOCKET_LIST[HostGames_LIST[PLAYER_LIST[socket.id].host].secondPlayer.controller.controllerID])
+                    SOCKET_LIST[HostGames_LIST[PLAYER_LIST[socket.id].host].secondPlayer.controller.controllerID].emit('enemyDisconectedController', { val: false });
+
                 delete CONTROLERS_LIST[HostGames_LIST[PLAYER_LIST[socket.id].host].secondPlayer.controller.controllerID];
                 delete HostGames_LIST[PLAYER_LIST[socket.id].host];
             }
 
             if (HostGames_LIST[PLAYER_LIST[socket.id].host] != undefined) {
                 if (HostGames_LIST[PLAYER_LIST[socket.id].host].firstPlayer.controller.controllerID === socket.id) {
-                    if (HostGames_LIST[PLAYER_LIST[socket.id].host].isActive)
-                        HostGames_LIST[PLAYER_LIST[socket.id].host].clearTimer();
                     if (HostGames_LIST[PLAYER_LIST[socket.id].host].secondPlayer.id != null) {
                         SOCKET_LIST[HostGames_LIST[PLAYER_LIST[socket.id].host].secondPlayer.id].emit('enemyDisconectedBoard', {});
                         SOCKET_LIST[HostGames_LIST[PLAYER_LIST[socket.id].host].secondPlayer.controller.controllerID].emit('enemyDisconectedController', { val: true });
                     }
-                    SOCKET_LIST[HostGames_LIST[PLAYER_LIST[socket.id].host].firstPlayer.id].emit('enemyDisconectedBoard', {});
+                    if (SOCKET_LIST[HostGames_LIST[PLAYER_LIST[socket.id].host].firstPlayer.id])
+                        SOCKET_LIST[HostGames_LIST[PLAYER_LIST[socket.id].host].firstPlayer.id].emit('enemyDisconectedBoard', {});
                     delete CONTROLERS_LIST[HostGames_LIST[PLAYER_LIST[socket.id].host].firstPlayer.controller.controllerID];
                     delete HostGames_LIST[PLAYER_LIST[socket.id].host];
 
                 }
                 else {
-                    if (HostGames_LIST[PLAYER_LIST[socket.id].host].isActive)
-                        HostGames_LIST[PLAYER_LIST[socket.id].host].clearTimer();
                     if (HostGames_LIST[PLAYER_LIST[socket.id].host].firstPlayer.id != null) {
                         SOCKET_LIST[HostGames_LIST[PLAYER_LIST[socket.id].host].firstPlayer.id].emit('enemyDisconectedBoard', {});
                         SOCKET_LIST[HostGames_LIST[PLAYER_LIST[socket.id].host].firstPlayer.controller.controllerID].emit('enemyDisconectedController', { val: true });
                     }
-                    SOCKET_LIST[HostGames_LIST[PLAYER_LIST[socket.id].host].secondPlayer.id].emit('enemyDisconectedBoard', {});
+                    if (SOCKET_LIST[HostGames_LIST[PLAYER_LIST[socket.id].host].secondPlayer.id])
+                        SOCKET_LIST[HostGames_LIST[PLAYER_LIST[socket.id].host].secondPlayer.id].emit('enemyDisconectedBoard', {});
                     delete CONTROLERS_LIST[HostGames_LIST[PLAYER_LIST[socket.id].host].secondPlayer.controller.controllerID];
                     delete HostGames_LIST[PLAYER_LIST[socket.id].host];
                 }
@@ -672,13 +599,13 @@ io.sockets.on('connection', function (socket) {
         for (var a in HostGames_LIST) {
             if (HostGames_LIST[a].id === data.id) {
                 isCorrect = HostGames_LIST[a].password === data.password;
+                socket.emit('checkPasswordResualt', {
+                    resualt: isCorrect,
+                    id: data.id
+                });
                 break;
             }
-        }
-        socket.emit('checkPasswordResualt', {
-            resualt: isCorrect,
-            id: data.id
-        });
+        }        
     });
 
     //Chat
@@ -691,16 +618,16 @@ io.sockets.on('connection', function (socket) {
 
         socket.on('pass', function () {
             var host = HostGames_LIST[PLAYER_LIST[CONTROLERS_LIST[socket.id].userID].host];
-            var board = BOARDS_LIST[host.board.host];
-            if (host.firstPlayer.controller.controllerID == socket.id)
-                board.firstPlayerPass = true;
-            else if (host.secondPlayer.controller.controllerID == socket.id)
-                board.secondPlayerPass = true;
-            if (host.isActive)
-                host.clearTimer();
-            if (board.firstPlayerPass || board.secondPlayerPass)
+            if (host) {
+                var board = BOARDS_LIST[host.board.host];
+                if (host.firstPlayer.controller.controllerID == socket.id)
+                    board.firstPlayerPass = true;
+                else if (host.secondPlayer.controller.controllerID == socket.id)
+                    board.secondPlayerPass = true;
+
                 changeTurn(host);
-            calculatePoints(host);
+                calculatePoints(host);
+            }
         });
 
     //Board
@@ -717,28 +644,20 @@ io.sockets.on('connection', function (socket) {
         BOARDS_LIST[host.board.host] = board;
 
         if (board.secondPlayerPass || board.firstPlayerPass) {
-            if (host.isActive)
-                host.clearTimer();
-            host.stopTimer = true;
             changeTurn(host);
         }
 
         if (host !== 'undefined') {            
             SOCKET_LIST[host.firstPlayer.id].emit('createBoard', { board: board });
             SOCKET_LIST[host.secondPlayer.id].emit('createBoard', { board: board });
-            calculatePoints(host);
-            host.clearTimer();
-            host.stopTimer = true;
             changeTurn(host);
+            calculatePoints(host);
         }
 
         });
 
     socket.on('closedBoard', function () {
         var host = HostGames_LIST[PLAYER_LIST[socket.id].host];
-        host.stopTimer = true;
-        if (host.isActive)
-            host.clearTimer();
         if (host.firstPlayer.id == socket.id) {
             SOCKET_LIST[host.firstPlayer.controller.controllerID].emit('enemyCloseBoard', {});
             SOCKET_LIST[host.secondPlayer.id].emit('enemyCloseBoard', {});
@@ -748,14 +667,6 @@ io.sockets.on('connection', function (socket) {
             SOCKET_LIST[host.secondPlayer.controller.controllerID].emit('enemyCloseBoard', {});
             SOCKET_LIST[host.firstPlayer.id].emit('enemyCloseBoard', {});
             SOCKET_LIST[host.firstPlayer.controller.controllerID].emit('enemyCloseBoard_Win', {});
-        }
-    });
-
-    //Timer
-    socket.on('timer', function () {
-        if (PLAYER_LIST[socket.id] !== 'undefined') {
-            var host = HostGames_LIST[PLAYER_LIST[socket.id].host];            
-            host.setTimer();
         }
     });
 
@@ -786,8 +697,6 @@ io.sockets.on('connection', function (socket) {
         if (board.firstPlayerPass && board.secondPlayerPass || onHP <= 0 || enHP <= 0) {
             SOCKET_LIST[host.firstPlayer.controller.controllerID].emit('showResualt', { yourHP: (onHP > 15 ? board.ownHP : onHP), enemyHP: (enHP > 15 ? board.enemyHP : enHP) });
             SOCKET_LIST[host.secondPlayer.controller.controllerID].emit('showResualt', { enemyHP: (onHP > 15 ? board.ownHP : onHP), yourHP: (enHP > 15 ? board.enemyHP : enHP) });
-            if (host.isActive)
-                host.clearTimer();
             removeGame();
         }
     }
