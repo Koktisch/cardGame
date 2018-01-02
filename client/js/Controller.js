@@ -81,6 +81,8 @@ function setInPos(position)
         i++;
     }
     $('#IDS' + idNumber).parent().parent().remove();
+    if ($('.card').length == 0)
+        pass();
 }
 
 
@@ -146,13 +148,6 @@ function pass()
     clearTimer();
 
 }
-
-socket.on('enemyDisconectedController', function () {
-        $('#boardLine').empty();
-        $('#controlerBoard').css('display', 'none');
-        $('#waiting').css('display', 'block');        
-        $('.blockBox').css('display', 'block');
-});
 
 socket.on('closeBoard', function () {
     $('#waitingBox').css('display', 'block');

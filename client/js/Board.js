@@ -33,20 +33,8 @@ socket.on('createBoard', function (board) {
     }
 });
 
-socket.on('enemyDisconectedBoard', function () {
-    $('#error').val('Utracono po³¹czenie z przeciwnikiem');
-    $('#ownCardBoard').empty();
-    $('#enemyCardBoard').empty();
-    $('#board').css('display', 'none');
-}); 
-
 socket.on('setTurn_Board', function (turn) { 
     $('#priority').html((turn.yourTurn == true ? 'Twoja tura' : 'Tura przeciwnika'));
-});
-socket.on('enemyDisconectedBoard', function () {
-    $('#win').css('display', 'block');
-    $('#blockEndGame').css('display', 'block');
-    
 });
 
 socket.on('calculatedPoints', function (e) {

@@ -191,6 +191,21 @@
             }
         };
 
+        socket.on('disconectedBoard', function () {
+            alert('Utracono połączenie z kontrollerem. Zaloguje się i sparuj urządzenia ponownie');
+            $('#ownCardBoard').empty();
+            $('#enemyCardBoard').empty();
+            $('#board').css('display', 'none');
+        }); 
+
+        socket.on('disconectedController', function () {
+            $('#boardLine').empty();
+            $('#controlerBoard').css('display', 'none');
+            $('#waiting').css('display', 'block');
+            $('.blockBox').css('display', 'block');
+            clearTimer();
+            alert('Utracono połączenie z użytkownikiem. Zaloguje się i sparuj urządzenia ponownie');
+        });
     </script>
     <script type="text/javascript" src="client/js/Board.js" charset="utf-8"></script>
     <script type="text/javascript" src="client/js/Controller.js" charset="utf-8"></script>
