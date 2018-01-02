@@ -3,6 +3,7 @@ var smallTimer;
 
 socket.on('startGameController', function (data) {
     $('.blockBox').css('display', 'none');
+    $('#pass').css('display', 'none');
     if (data.deck !== 'undefined') {
         loadCards(data.deck);
     }
