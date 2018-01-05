@@ -196,6 +196,7 @@
             $('#ownCardBoard').empty();
             $('#enemyCardBoard').empty();
             $('#board').css('display', 'none');
+            leaveLobby();
         }); 
 
         socket.on('disconectedController', function () {
