@@ -1,7 +1,9 @@
 {
   "ExpandedNodes": [
     "",
-    "\\client"
+    "\\client",
+    "\\client\\js"
   ],
+  "SelectedNode": "\\client\\js\\Board.js",
   "PreviewInSolutionExplorer": false
 }
