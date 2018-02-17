@@ -20,7 +20,7 @@ serv.listen(process.env.PORT || 2000);
 
 function changeTurn(host) {
     var board = BOARDS_LIST[host.board.host];
-    if (host.playerTurn == host.firstPlayer.id) {
+    if (host.playerTurn == host.firstPlayer.id && !board.firstPlayerPass) {
         host.setPlayerTurn(host.secondPlayer.id);
 
         SOCKET_LIST[host.firstPlayer.id].emit('setTurn_Board', { yourTurn: true });
@@ -28,7 +28,7 @@ function changeTurn(host) {
         SOCKET_LIST[host.firstPlayer.controller.controllerID].emit('setTurn_Controller', { yourTurn: true });
         SOCKET_LIST[host.secondPlayer.controller.controllerID].emit('setTurn_Controller', { yourTurn: false });
     }    
-    else if (host.playerTurn == host.secondPlayer.id) {
+    else if (host.playerTurn == host.secondPlayer.id && !board.secondPlayerPass) {
         host.setPlayerTurn(host.firstPlayer.id);
 
         SOCKET_LIST[host.firstPlayer.id].emit('setTurn_Board', { yourTurn: false });
@@ -190,7 +190,6 @@ var CARD = function () {
         Ability: null,
         isSpy: null,
         Image: null,
-        isLocked: false,
         createdBy: null
     }
 
@@ -576,12 +575,9 @@ io.sockets.on('connection', function (socket) {
     }
     //Hosting
     socket.on('hostGame', function (data) {
-        console.log('Creating host');
-        var goodName = true;
         var lobby = HOST(socket.id, PLAYER_LIST[socket.id], data);
         lobby.createParty();
         PLAYER_LIST[socket.id].setHost(socket.id);
-        console.log(socket.id + '-' + 'USERNAME: ' + lobby.firstPlayer);
         emitLobbys();
     });
 

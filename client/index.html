@@ -63,12 +63,10 @@
                 socket.on('partyList', function (data) {
                     let gamesBox = document.getElementById("gamesBox");
                     if (gamesBox.firstChild) {
-                        //usuwanie gameboxa
                         while (gamesBox.firstChild) {
                             gamesBox.removeChild(gamesBox.firstChild);
                         }
                     }
-                    //wypełnianie game boxa
                     for (var gameNum in data) {
                         if (data[gameNum].partyStatus != 2) {
                             let div = document.createElement("div");

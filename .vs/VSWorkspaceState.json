@@ -2,6 +2,11 @@
   "ExpandedNodes": [
     "",
     "\\client",
+    "\\client\\css",
+    "\\client\\img",
+    "\\client\\img\\Cards",
+    "\\client\\img\\Icons",
+    "\\client\\img\\Tutorial",
     "\\client\\js"
   ],
   "SelectedNode": "\\client\\index.html",
